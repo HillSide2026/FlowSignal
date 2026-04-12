@@ -1,0 +1,29 @@
+FlowSignal Documentation Map
+
+Use this structure to track documents during a cross-border flow review.
+
+Client:
+Review owner:
+Review date:
+
+Route summary:
+- Source country:
+- Destination country:
+- Currency:
+- Estimated monthly volume:
+- Expected frequency:
+
+Documents received:
+- 
+
+Documents pending:
+- 
+
+Documents requiring specialist review:
+- 
+
+Open questions:
+- 
+
+Next review owner:
+Next review date:

@@ -1,0 +1,14 @@
+FlowSignal Accountant Client Intake Questions
+
+Use these prompts to prepare a neutral intake conversation.
+
+1. What business activity is connected to the cross-border flow?
+2. Which countries are involved?
+3. Which parties are sending or receiving funds?
+4. What is the relationship between the parties?
+5. What documents are already available?
+6. What documents are still being collected?
+7. Is the timing routine, seasonal, or deadline-driven?
+8. Are any reporting dates already known?
+9. Which internal person owns follow-up?
+10. Which questions should be routed to tax, legal, banking, or compliance review?

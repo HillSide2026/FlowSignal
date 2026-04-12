@@ -1,0 +1,35 @@
+FlowSignal Cross-Border Flow Review Checklist
+
+Use this checklist to gather facts before a professional review.
+
+1. Client and business context
+- Client legal name and operating name
+- Business purpose for the cross-border flow
+- Internal owner for follow-up questions
+
+2. Route facts
+- Source country and destination country
+- Currency or currencies involved
+- Expected frequency and approximate monthly volume
+- Known intermediaries or service providers
+
+3. Counterparty facts
+- Sender and recipient names
+- Relationship between parties
+- Available agreements, invoices, or purchase records
+
+4. Timing facts
+- Expected dates
+- Time-sensitive deadlines
+- Reporting or filing dates that may affect review planning
+
+5. Document status
+- Records received
+- Records pending
+- Records requiring specialist review
+
+6. Open questions
+- Tax questions
+- Legal questions
+- Banking or compliance questions
+- Operational questions

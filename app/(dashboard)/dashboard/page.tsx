@@ -1,287 +1,220 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useMemo, useState } from 'react';
+import { Calculator, FileText, Route, ShieldCheck } from 'lucide-react';
 import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  CardFooter
+  CardTitle
 } from '@/components/ui/card';
-import { customerPortalAction } from '@/lib/payments/actions';
-import { useActionState } from 'react';
-import { TeamDataWithMembers, User } from '@/lib/db/schema';
-import { removeTeamMember, inviteTeamMember } from '@/app/(login)/actions';
-import useSWR from 'swr';
-import { Suspense } from 'react';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { Loader2, PlusCircle } from 'lucide-react';
 
-type ActionState = {
-  error?: string;
-  success?: string;
-};
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-function SubscriptionSkeleton() {
-  return (
-    <Card className="mb-8 h-[140px]">
-      <CardHeader>
-        <CardTitle>Team Subscription</CardTitle>
-      </CardHeader>
-    </Card>
-  );
-}
-
-function ManageSubscription() {
-  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
-
-  return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>Team Subscription</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-            <div className="mb-4 sm:mb-0">
-              <p className="font-medium">
-                Current Plan: {teamData?.planName || 'Free'}
-              </p>
-              <p className="text-sm text-muted-foreground">
-                {teamData?.subscriptionStatus === 'active'
-                  ? 'Billed monthly'
-                  : teamData?.subscriptionStatus === 'trialing'
-                  ? 'Trial period'
-                  : 'No active subscription'}
-              </p>
-            </div>
-            <form action={customerPortalAction}>
-              <Button type="submit" variant="outline">
-                Manage Subscription
-              </Button>
-            </form>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function TeamMembersSkeleton() {
-  return (
-    <Card className="mb-8 h-[140px]">
-      <CardHeader>
-        <CardTitle>Team Members</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="animate-pulse space-y-4 mt-1">
-          <div className="flex items-center space-x-4">
-            <div className="size-8 rounded-full bg-gray-200"></div>
-            <div className="space-y-2">
-              <div className="h-4 w-32 bg-gray-200 rounded"></div>
-              <div className="h-3 w-14 bg-gray-200 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function TeamMembers() {
-  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
-  const [removeState, removeAction, isRemovePending] = useActionState<
-    ActionState,
-    FormData
-  >(removeTeamMember, {});
-
-  const getUserDisplayName = (user: Pick<User, 'id' | 'name' | 'email'>) => {
-    return user.name || user.email || 'Unknown User';
-  };
-
-  if (!teamData?.teamMembers?.length) {
-    return (
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Team Members</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">No team members yet.</p>
-        </CardContent>
-      </Card>
-    );
+const diagnosticNotes = [
+  {
+    title: 'Documentation',
+    text: 'Prepare invoices, agreements, banking records, and purpose notes before review.',
+    icon: FileText
+  },
+  {
+    title: 'Route context',
+    text: 'Separate countries, counterparties, intermediaries, and timing into a clear route map.',
+    icon: Route
+  },
+  {
+    title: 'Review posture',
+    text: 'Use the output as a planning prompt for professional analysis, not as a recommendation.',
+    icon: ShieldCheck
   }
+];
+
+function toNumber(value: string) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+}
+
+export default function FlowDiagnosticsPage() {
+  const [monthlyOutbound, setMonthlyOutbound] = useState('125000');
+  const [monthlyInbound, setMonthlyInbound] = useState('45000');
+  const [corridors, setCorridors] = useState('3');
+  const [urgentShare, setUrgentShare] = useState('20');
+  const [manualHours, setManualHours] = useState('6');
+
+  const diagnostic = useMemo(() => {
+    const outbound = toNumber(monthlyOutbound);
+    const inbound = toNumber(monthlyInbound);
+    const corridorCount = Math.max(1, Math.round(toNumber(corridors)));
+    const urgent = Math.min(100, toNumber(urgentShare));
+    const hours = toNumber(manualHours);
+    const volume = outbound + inbound;
+
+    const volumeScore = Math.min(34, volume / 15000);
+    const corridorScore = Math.min(24, corridorCount * 6);
+    const timingScore = Math.min(22, urgent * 0.22);
+    const manualScore = Math.min(20, hours * 2.5);
+    const index = Math.min(
+      100,
+      Math.round(volumeScore + corridorScore + timingScore + manualScore)
+    );
+
+    const priority =
+      index >= 70 ? 'High' : index >= 40 ? 'Moderate' : 'Baseline';
+    const estimatedReviewHours = Math.round(
+      (hours * 4.3 + corridorCount * 2.5 + urgent / 12) * 10
+    ) / 10;
+
+    return {
+      index,
+      priority,
+      estimatedReviewHours,
+      volume
+    };
+  }, [corridors, manualHours, monthlyInbound, monthlyOutbound, urgentShare]);
 
   return (
-    <Card className="mb-8">
-      <CardHeader>
-        <CardTitle>Team Members</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <ul className="space-y-4">
-          {teamData.teamMembers.map((member, index) => (
-            <li key={member.id} className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Avatar>
-                  {/* 
-                    This app doesn't save profile images, but here
-                    is how you'd show them:
+    <section className="flex-1 p-4 lg:p-8">
+      <div className="mb-8 max-w-3xl">
+        <p className="text-sm font-semibold text-[#0614b8]">
+          Member dashboard
+        </p>
+        <h1 className="mt-2 text-2xl font-semibold text-gray-950">
+          Flow Diagnostics
+        </h1>
+        <p className="mt-3 text-sm leading-6 text-gray-600">
+          Use this gated calculator to frame a cross-border flow review before
+          preparing notes, route questions, or client-facing materials.
+        </p>
+      </div>
 
-                    <AvatarImage
-                      src={member.user.image || ''}
-                      alt={getUserDisplayName(member.user)}
-                    />
-                  */}
-                  <AvatarFallback>
-                    {getUserDisplayName(member.user)
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">
-                    {getUserDisplayName(member.user)}
+      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calculator className="h-5 w-5 text-[#0614b8]" />
+              Diagnostic calculator
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <Label htmlFor="monthly-outbound" className="mb-2">
+                  Monthly outbound flow
+                </Label>
+                <Input
+                  id="monthly-outbound"
+                  inputMode="decimal"
+                  value={monthlyOutbound}
+                  onChange={(event) => setMonthlyOutbound(event.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="monthly-inbound" className="mb-2">
+                  Monthly inbound flow
+                </Label>
+                <Input
+                  id="monthly-inbound"
+                  inputMode="decimal"
+                  value={monthlyInbound}
+                  onChange={(event) => setMonthlyInbound(event.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="corridors" className="mb-2">
+                  Active corridors
+                </Label>
+                <Input
+                  id="corridors"
+                  inputMode="numeric"
+                  value={corridors}
+                  onChange={(event) => setCorridors(event.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="urgent-share" className="mb-2">
+                  Time-sensitive share
+                </Label>
+                <Input
+                  id="urgent-share"
+                  inputMode="decimal"
+                  value={urgentShare}
+                  onChange={(event) => setUrgentShare(event.target.value)}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label htmlFor="manual-hours" className="mb-2">
+                  Manual review hours per week
+                </Label>
+                <Input
+                  id="manual-hours"
+                  inputMode="decimal"
+                  value={manualHours}
+                  onChange={(event) => setManualHours(event.target.value)}
+                />
+              </div>
+            </div>
+            <p className="mt-4 text-xs leading-5 text-gray-500">
+              Directional planning estimate only. Review outputs should be
+              validated by the appropriate professional team.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Diagnostic output</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-4">
+              <div className="border border-gray-200 p-4">
+                <p className="text-sm text-gray-500">Flow exposure index</p>
+                <p className="mt-2 text-4xl font-semibold text-gray-950">
+                  {diagnostic.index}
+                </p>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="border border-gray-200 p-4">
+                  <p className="text-sm text-gray-500">Review priority</p>
+                  <p className="mt-2 text-lg font-semibold text-[#0614b8]">
+                    {diagnostic.priority}
                   </p>
-                  <p className="text-sm text-muted-foreground capitalize">
-                    {member.role}
+                </div>
+                <div className="border border-gray-200 p-4">
+                  <p className="text-sm text-gray-500">Monthly volume</p>
+                  <p className="mt-2 text-lg font-semibold text-gray-950">
+                    {diagnostic.volume.toLocaleString()}
                   </p>
                 </div>
               </div>
-              {index > 1 ? (
-                <form action={removeAction}>
-                  <input type="hidden" name="memberId" value={member.id} />
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    size="sm"
-                    disabled={isRemovePending}
-                  >
-                    {isRemovePending ? 'Removing...' : 'Remove'}
-                  </Button>
-                </form>
-              ) : null}
-            </li>
-          ))}
-        </ul>
-        {removeState?.error && (
-          <p className="text-red-500 mt-4">{removeState.error}</p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function InviteTeamMemberSkeleton() {
-  return (
-    <Card className="h-[260px]">
-      <CardHeader>
-        <CardTitle>Invite Team Member</CardTitle>
-      </CardHeader>
-    </Card>
-  );
-}
-
-function InviteTeamMember() {
-  const { data: user } = useSWR<User>('/api/user', fetcher);
-  const isOwner = user?.role === 'owner';
-  const [inviteState, inviteAction, isInvitePending] = useActionState<
-    ActionState,
-    FormData
-  >(inviteTeamMember, {});
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Invite Team Member</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form action={inviteAction} className="space-y-4">
-          <div>
-            <Label htmlFor="email" className="mb-2">
-              Email
-            </Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="Enter email"
-              required
-              disabled={!isOwner}
-            />
-          </div>
-          <div>
-            <Label>Role</Label>
-            <RadioGroup
-              defaultValue="member"
-              name="role"
-              className="flex space-x-4"
-              disabled={!isOwner}
-            >
-              <div className="flex items-center space-x-2 mt-2">
-                <RadioGroupItem value="member" id="member" />
-                <Label htmlFor="member">Member</Label>
+              <div className="border-l-2 border-[#0584c7] pl-4">
+                <p className="text-sm leading-6 text-gray-700">
+                  Estimated documentation and preparation load:{' '}
+                  <span className="font-semibold">
+                    {diagnostic.estimatedReviewHours} hours per month
+                  </span>
+                  .
+                </p>
               </div>
-              <div className="flex items-center space-x-2 mt-2">
-                <RadioGroupItem value="owner" id="owner" />
-                <Label htmlFor="owner">Owner</Label>
-              </div>
-            </RadioGroup>
-          </div>
-          {inviteState?.error && (
-            <p className="text-red-500">{inviteState.error}</p>
-          )}
-          {inviteState?.success && (
-            <p className="text-green-500">{inviteState.success}</p>
-          )}
-          <Button
-            type="submit"
-            className="bg-orange-500 hover:bg-orange-600 text-white"
-            disabled={isInvitePending || !isOwner}
-          >
-            {isInvitePending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Inviting...
-              </>
-            ) : (
-              <>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Invite Member
-              </>
-            )}
-          </Button>
-        </form>
-      </CardContent>
-      {!isOwner && (
-        <CardFooter>
-          <p className="text-sm text-muted-foreground">
-            You must be a team owner to invite new members.
-          </p>
-        </CardFooter>
-      )}
-    </Card>
-  );
-}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
-export default function SettingsPage() {
-  return (
-    <section className="flex-1 p-4 lg:p-8">
-      <h1 className="text-lg lg:text-2xl font-medium mb-6">Team Settings</h1>
-      <Suspense fallback={<SubscriptionSkeleton />}>
-        <ManageSubscription />
-      </Suspense>
-      <Suspense fallback={<TeamMembersSkeleton />}>
-        <TeamMembers />
-      </Suspense>
-      <Suspense fallback={<InviteTeamMemberSkeleton />}>
-        <InviteTeamMember />
-      </Suspense>
+      <div className="mt-6 grid gap-6 lg:grid-cols-3">
+        {diagnosticNotes.map((note) => (
+          <Card key={note.title}>
+            <CardHeader>
+              <div className="flex h-10 w-10 items-center justify-center bg-[#0614b8] text-white">
+                <note.icon className="h-5 w-5" />
+              </div>
+              <CardTitle>{note.title}</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm leading-6 text-gray-600">{note.text}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </section>
   );
 }
