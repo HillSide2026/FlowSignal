@@ -1,0 +1,96 @@
+{
+  "rulesVersion": "mvp-partner-rules-2026-04-20",
+  "partners": [
+    {
+      "id": "correspondent-bank-swift-desk",
+      "name": "Correspondent Bank SWIFT Desk",
+      "description": "Bank-led support for inward export receipts where audit trail and documentary review matter.",
+      "supportedRoutes": ["bank-swift-inward-export"],
+      "supportedCorridors": ["IN-US", "IN-GB", "IN-EU"],
+      "supportedDirections": ["receive"],
+      "supportedUseCases": [
+        "saas_exports",
+        "services_exports",
+        "recurring_international_flow"
+      ],
+      "supportedCurrencies": ["USD", "GBP", "EUR", "INR"],
+      "costProfile": "Higher-touch bank charges and FX spread, with stronger manual review.",
+      "speedProfile": "Typically slower because settlement can depend on correspondent banks and document checks.",
+      "regulatoryFit": "Useful when the finance team wants bank-reviewed export proceeds records and clear purpose-code handling.",
+      "bestUseCase": "SaaS and services export receipts that need a conservative bank audit trail.",
+      "whyThisPartner": "Fits this route because the scenario uses bank SWIFT inward remittance for export proceeds, where documentary review and bank records are more important than the lightest workflow.",
+      "flowPoints": null,
+      "displayOrder": 10
+    },
+    {
+      "id": "flowbridge-export-collections",
+      "name": "FlowBridge Export Collections",
+      "description": "Fintech-assisted collection support for repeat export receipts from overseas customers.",
+      "supportedRoutes": [
+        "fintech-assisted-export-collection",
+        "local-receiving-account-export"
+      ],
+      "supportedCorridors": ["IN-US", "IN-GB", "IN-EU"],
+      "supportedDirections": ["receive"],
+      "supportedUseCases": [
+        "saas_exports",
+        "services_exports",
+        "recurring_international_flow"
+      ],
+      "supportedCurrencies": ["USD", "GBP", "EUR", "INR"],
+      "costProfile": "Lower operating friction than bank-only SWIFT, with platform and FX costs still reviewed as a range.",
+      "speedProfile": "Good fit for repeat payer patterns after customer, invoice, and collection details are set up.",
+      "regulatoryFit": "Works best when platform records can be reconciled back to invoices, purpose codes, and export reporting evidence.",
+      "bestUseCase": "Recurring SaaS or services export receipts with predictable customers and invoice patterns.",
+      "whyThisPartner": "Fits this route because the scenario involves repeat export collections where local account or fintech-assisted collection records can reduce operational work while preserving traceability.",
+      "flowPoints": {
+        "amount": 750,
+        "disclosure": "Incentives do not affect recommendations."
+      },
+      "displayOrder": 20
+    },
+    {
+      "id": "ledgerrail-vendor-payouts",
+      "name": "LedgerRail Vendor Payouts",
+      "description": "Fintech-assisted outward payment support for repeat vendor and service payments.",
+      "supportedRoutes": [
+        "fintech-assisted-outward-transfer",
+        "fintech-local-rails-payout"
+      ],
+      "supportedCorridors": ["IN-AE", "IN-SG", "IN-GB", "IN-EU"],
+      "supportedDirections": ["send"],
+      "supportedUseCases": ["vendor_payments", "recurring_international_flow"],
+      "supportedCurrencies": ["AED", "EUR", "GBP", "INR", "SGD", "USD"],
+      "costProfile": "Designed for repeatable vendor payment ranges where platform and FX costs can be compared against bank SWIFT.",
+      "speedProfile": "Strong fit when vendor details and compliance context can be reused across payments.",
+      "regulatoryFit": "Appropriate when finance can retain platform confirmations with invoice, agreement, and purpose-code records.",
+      "bestUseCase": "Recurring vendor payments to UAE, Singapore, UK, or EU counterparties.",
+      "whyThisPartner": "Fits this route because the scenario is a repeat outward payment use case where fintech-assisted validation and local payout eligibility can reduce operating drag.",
+      "flowPoints": {
+        "amount": 500,
+        "disclosure": "Incentives do not affect recommendations."
+      },
+      "displayOrder": 30
+    },
+    {
+      "id": "anchor-trade-bank-review",
+      "name": "Anchor Trade Bank Review",
+      "description": "Bank-supported review for outward remittances tied to trade, shipment, or formal vendor documentation.",
+      "supportedRoutes": [
+        "bank-swift-outward-remittance",
+        "bank-trade-documentation-route"
+      ],
+      "supportedCorridors": ["IN-AE", "IN-SG", "IN-GB", "IN-EU"],
+      "supportedDirections": ["send"],
+      "supportedUseCases": ["vendor_payments", "import_export_trade_flow"],
+      "supportedCurrencies": ["AED", "EUR", "GBP", "INR", "SGD", "USD"],
+      "costProfile": "More documentation-heavy bank pricing profile, useful when formal review matters more than minimum friction.",
+      "speedProfile": "Usually slower because bank review can depend on invoice, shipment, beneficiary, and purpose details.",
+      "regulatoryFit": "Strong fit for documented import or trade payments that need a bank-reviewed paper trail.",
+      "bestUseCase": "Vendor or import/export payments with shipment evidence, purchase orders, or formal bank review needs.",
+      "whyThisPartner": "Fits this route because the scenario uses a bank-led outward remittance path where trade documentation and beneficiary review are part of the operating requirement.",
+      "flowPoints": null,
+      "displayOrder": 40
+    }
+  ]
+}

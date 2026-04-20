@@ -1,0 +1,347 @@
+{
+  "rulesVersion": "mvp-scenario-rules-2026-04-20",
+  "routes": [
+    {
+      "id": "bank-swift-inward-export",
+      "name": "Bank SWIFT Inward Remittance",
+      "type": "bank_swift",
+      "supportedCorridors": ["IN-US", "IN-GB", "IN-EU"],
+      "supportedDirections": ["receive"],
+      "supportedUseCases": [
+        "saas_exports",
+        "services_exports",
+        "recurring_international_flow"
+      ],
+      "supportedCurrencies": ["USD", "GBP", "EUR", "INR"],
+      "costRange": {
+        "minPercent": 0.6,
+        "maxPercent": 1.6,
+        "summary": "Indicative bank charge and FX spread range; not a live quote."
+      },
+      "estimatedTimeline": {
+        "minBusinessDays": 2,
+        "maxBusinessDays": 5,
+        "summary": "Commonly settles after bank screening, intermediary processing, and documentation review."
+      },
+      "complianceLevel": "high",
+      "complexityLevel": "high",
+      "documentation": {
+        "summary": "Strong documentation trail for export receipts, with more manual bank review.",
+        "requirements": [
+          "Customer invoice",
+          "Customer contract or order form",
+          "Purpose-code declaration",
+          "Bank KYC records",
+          "FIRC or e-BRC record where applicable"
+        ]
+      },
+      "baseRiskFlags": [
+        {
+          "code": "intermediary_bank_delays",
+          "severity": "watch",
+          "summary": "Intermediary banks can add deductions or request extra payment details."
+        },
+        {
+          "code": "manual_document_review",
+          "severity": "watch",
+          "summary": "Bank review may pause settlement when invoice, purpose, or counterparty details are incomplete."
+        }
+      ],
+      "tradeoffSummary": "Familiar bank-led route with a strong audit trail, but usually slower and more operationally heavy than specialist collection routes.",
+      "priorityFit": ["balanced"],
+      "displayOrder": 10
+    },
+    {
+      "id": "fintech-assisted-export-collection",
+      "name": "Fintech-Assisted Export Collection",
+      "type": "fintech_assisted",
+      "supportedCorridors": ["IN-US", "IN-GB", "IN-EU"],
+      "supportedDirections": ["receive"],
+      "supportedUseCases": [
+        "saas_exports",
+        "services_exports",
+        "recurring_international_flow"
+      ],
+      "supportedCurrencies": ["USD", "GBP", "EUR", "INR"],
+      "costRange": {
+        "minPercent": 0.7,
+        "maxPercent": 1.4,
+        "summary": "Indicative platform and FX spread range; not a live quote."
+      },
+      "estimatedTimeline": {
+        "minBusinessDays": 1,
+        "maxBusinessDays": 3,
+        "summary": "Often faster once customer, invoice, and remittance details are complete."
+      },
+      "complianceLevel": "moderate",
+      "complexityLevel": "moderate",
+      "documentation": {
+        "summary": "Useful for recurring export collections when invoice and customer context are consistent.",
+        "requirements": [
+          "Customer invoice",
+          "Customer contract or order form",
+          "Purpose-code details",
+          "Exporter KYC records",
+          "Settlement or collection statement"
+        ]
+      },
+      "baseRiskFlags": [
+        {
+          "code": "platform_limit_review",
+          "severity": "watch",
+          "summary": "Platform limits or enhanced due diligence may apply for new or high-value customers."
+        },
+        {
+          "code": "documentation_mapping",
+          "severity": "info",
+          "summary": "Finance teams should map platform records back to invoice and export reporting records."
+        }
+      ],
+      "tradeoffSummary": "Usually faster and easier to operate than bank-only SWIFT, with care needed to keep export documentation and settlement records aligned.",
+      "priorityFit": ["speed", "balanced"],
+      "displayOrder": 20
+    },
+    {
+      "id": "local-receiving-account-export",
+      "name": "Local Receiving Account For Export Proceeds",
+      "type": "local_rails",
+      "supportedCorridors": ["IN-US", "IN-GB", "IN-EU"],
+      "supportedDirections": ["receive"],
+      "supportedUseCases": [
+        "saas_exports",
+        "services_exports",
+        "recurring_international_flow"
+      ],
+      "supportedCurrencies": ["USD", "GBP", "EUR"],
+      "costRange": {
+        "minPercent": 0.4,
+        "maxPercent": 1.2,
+        "summary": "Indicative collection and conversion range; not a live quote."
+      },
+      "estimatedTimeline": {
+        "minBusinessDays": 1,
+        "maxBusinessDays": 2,
+        "summary": "Can be quick for repeat customers after account and payer details are set up."
+      },
+      "complianceLevel": "moderate",
+      "complexityLevel": "low",
+      "documentation": {
+        "summary": "Best for repeat export receipts where payer and invoice patterns are stable.",
+        "requirements": [
+          "Customer invoice",
+          "Customer contract or order form",
+          "Virtual account or collection statement",
+          "Purpose-code details",
+          "Exporter KYC records"
+        ]
+      },
+      "baseRiskFlags": [
+        {
+          "code": "payer_name_mismatch",
+          "severity": "watch",
+          "summary": "Payer names should match commercial records to avoid reconciliation and compliance questions."
+        },
+        {
+          "code": "reporting_traceability",
+          "severity": "watch",
+          "summary": "Collection records must remain traceable to invoices and export reporting evidence."
+        }
+      ],
+      "tradeoffSummary": "Often the simplest recurring export collection path, but it relies on clean reconciliation between payer, invoice, and settlement records.",
+      "priorityFit": ["cost", "speed", "balanced"],
+      "displayOrder": 30
+    },
+    {
+      "id": "bank-swift-outward-remittance",
+      "name": "Bank SWIFT Outward Remittance",
+      "type": "bank_swift",
+      "supportedCorridors": ["IN-AE", "IN-SG", "IN-GB", "IN-EU"],
+      "supportedDirections": ["send"],
+      "supportedUseCases": [
+        "vendor_payments",
+        "import_export_trade_flow",
+        "recurring_international_flow"
+      ],
+      "supportedCurrencies": ["AED", "EUR", "GBP", "INR", "SGD", "USD"],
+      "costRange": {
+        "minPercent": 0.7,
+        "maxPercent": 1.8,
+        "summary": "Indicative bank fee and FX spread range; not a live quote."
+      },
+      "estimatedTimeline": {
+        "minBusinessDays": 2,
+        "maxBusinessDays": 5,
+        "summary": "Typical timing depends on bank cutoffs, correspondent banks, and beneficiary bank review."
+      },
+      "complianceLevel": "high",
+      "complexityLevel": "high",
+      "documentation": {
+        "summary": "Conservative route for vendor and trade payments when bank review and audit trail matter most.",
+        "requirements": [
+          "Vendor invoice",
+          "Purchase order or agreement",
+          "Beneficiary bank details",
+          "Purpose-code declaration",
+          "Import or service documentation where applicable"
+        ]
+      },
+      "baseRiskFlags": [
+        {
+          "code": "beneficiary_detail_errors",
+          "severity": "watch",
+          "summary": "Incorrect beneficiary or correspondent details can delay or return payments."
+        },
+        {
+          "code": "bank_cutoff_timing",
+          "severity": "info",
+          "summary": "Submission after bank cutoff can push settlement into the next business day."
+        }
+      ],
+      "tradeoffSummary": "Widely accepted and documentation-heavy, with slower timing and less predictable deductions than local or specialist routes.",
+      "priorityFit": ["balanced"],
+      "displayOrder": 40
+    },
+    {
+      "id": "fintech-assisted-outward-transfer",
+      "name": "Fintech-Assisted Outward Transfer",
+      "type": "fintech_assisted",
+      "supportedCorridors": ["IN-AE", "IN-SG", "IN-GB", "IN-EU"],
+      "supportedDirections": ["send"],
+      "supportedUseCases": [
+        "vendor_payments",
+        "import_export_trade_flow",
+        "recurring_international_flow"
+      ],
+      "supportedCurrencies": ["AED", "EUR", "GBP", "INR", "SGD", "USD"],
+      "costRange": {
+        "minPercent": 0.5,
+        "maxPercent": 1.3,
+        "summary": "Indicative platform and FX spread range; not a live quote."
+      },
+      "estimatedTimeline": {
+        "minBusinessDays": 1,
+        "maxBusinessDays": 3,
+        "summary": "Often faster after vendor, invoice, and compliance details are pre-validated."
+      },
+      "complianceLevel": "moderate",
+      "complexityLevel": "moderate",
+      "documentation": {
+        "summary": "Useful for repeat vendor payments where the counterparty and purpose are predictable.",
+        "requirements": [
+          "Vendor invoice",
+          "Vendor agreement or purchase order",
+          "Beneficiary bank details",
+          "Purpose-code details",
+          "Company KYC records"
+        ]
+      },
+      "baseRiskFlags": [
+        {
+          "code": "route_limit_review",
+          "severity": "watch",
+          "summary": "Route limits or additional review may apply based on amount, vendor, or payment purpose."
+        },
+        {
+          "code": "provider_recordkeeping",
+          "severity": "info",
+          "summary": "Finance should retain platform confirmations with invoice and accounting records."
+        }
+      ],
+      "tradeoffSummary": "A practical middle path for cost and speed, with documentation discipline needed for repeatable compliance records.",
+      "priorityFit": ["cost", "speed", "balanced"],
+      "displayOrder": 50
+    },
+    {
+      "id": "fintech-local-rails-payout",
+      "name": "Fintech Local-Rails Payout",
+      "type": "local_rails",
+      "supportedCorridors": ["IN-AE", "IN-SG"],
+      "supportedDirections": ["send"],
+      "supportedUseCases": ["vendor_payments", "recurring_international_flow"],
+      "supportedCurrencies": ["AED", "INR", "SGD", "USD"],
+      "costRange": {
+        "minPercent": 0.4,
+        "maxPercent": 1.1,
+        "summary": "Indicative local payout and FX spread range; not a live quote."
+      },
+      "estimatedTimeline": {
+        "minBusinessDays": 1,
+        "maxBusinessDays": 2,
+        "summary": "Can be quick when both corridor and beneficiary details are supported."
+      },
+      "complianceLevel": "moderate",
+      "complexityLevel": "low",
+      "documentation": {
+        "summary": "Best for recurring vendor payouts where local beneficiary details are stable.",
+        "requirements": [
+          "Vendor invoice",
+          "Beneficiary local bank details",
+          "Vendor agreement or purchase order",
+          "Purpose-code details",
+          "Company KYC records"
+        ]
+      },
+      "baseRiskFlags": [
+        {
+          "code": "local_rail_eligibility",
+          "severity": "watch",
+          "summary": "Local payout availability depends on beneficiary country, currency, and account details."
+        },
+        {
+          "code": "beneficiary_name_match",
+          "severity": "watch",
+          "summary": "Beneficiary names should match vendor records to reduce hold or return risk."
+        }
+      ],
+      "tradeoffSummary": "Potentially lower-cost and faster for repeat UAE or Singapore vendor payouts, but eligibility is narrower than bank SWIFT.",
+      "priorityFit": ["cost", "speed", "balanced"],
+      "displayOrder": 60
+    },
+    {
+      "id": "bank-trade-documentation-route",
+      "name": "Bank Trade Remittance With Document Review",
+      "type": "trade_bank_route",
+      "supportedCorridors": ["IN-AE", "IN-SG", "IN-GB", "IN-EU"],
+      "supportedDirections": ["send"],
+      "supportedUseCases": ["import_export_trade_flow", "vendor_payments"],
+      "supportedCurrencies": ["AED", "EUR", "GBP", "INR", "SGD", "USD"],
+      "costRange": {
+        "minPercent": 0.9,
+        "maxPercent": 2.2,
+        "summary": "Indicative trade remittance and FX spread range; not a live quote."
+      },
+      "estimatedTimeline": {
+        "minBusinessDays": 3,
+        "maxBusinessDays": 7,
+        "summary": "Slower because payment review is tied to trade documents and bank processing windows."
+      },
+      "complianceLevel": "high",
+      "complexityLevel": "high",
+      "documentation": {
+        "summary": "Most appropriate when the payment depends on formal import, trade, or shipment evidence.",
+        "requirements": [
+          "Vendor invoice",
+          "Purchase order or commercial agreement",
+          "Bill of entry, airway bill, or shipment evidence where applicable",
+          "Purpose-code declaration",
+          "Bank KYC and beneficiary records"
+        ]
+      },
+      "baseRiskFlags": [
+        {
+          "code": "document_mismatch",
+          "severity": "elevated",
+          "summary": "Mismatches between invoice, shipment, and beneficiary details can lead to bank queries."
+        },
+        {
+          "code": "longer_bank_review",
+          "severity": "watch",
+          "summary": "Trade documentation review can extend the payment timeline."
+        }
+      ],
+      "tradeoffSummary": "Highest documentation burden, but useful when the finance team needs a bank-reviewed trade record for complex import or shipment-linked payments.",
+      "priorityFit": ["balanced"],
+      "displayOrder": 70
+    }
+  ]
+}

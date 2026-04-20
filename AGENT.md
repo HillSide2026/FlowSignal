@@ -151,6 +151,19 @@ Be explicit about what is:
 * missing
 * newly introduced
 
+## MVP build source of truth
+
+For implementation work, read these root docs before changing code:
+
+* `PRD.md`: what the MVP does and does not do
+* `USER_FLOWS.md`: pre-sign-in, sign-in, questionnaire, results, partner handoff, FlowPoints, and saved scenario flows
+* `TECH_SPEC.md`: locked stack, entities, API shape, route engine, persistence, and testing approach
+* `TASKS.md`: ordered implementation backlog
+* `BUILD_INSTRUCTIONS.md`: short repo brief for Codex build tasks
+
+Do not treat this file alone as the implementation plan.
+`AGENT.md` sets product and working guardrails; the MVP docs translate those guardrails into buildable artifacts.
+
 ## Product architecture direction
 
 Align product work to this experience:

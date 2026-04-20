@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
   Calculator,
+  ClipboardList,
   FileText,
   Menu,
   Route,
@@ -22,6 +23,7 @@ export default function DashboardLayout({
 
   const navItems = [
     { href: '/dashboard', icon: Calculator, label: 'Flow Diagnostics' },
+    { href: '/dashboard/scenarios', icon: ClipboardList, label: 'Scenarios' },
     { href: '/dashboard/route-review', icon: Route, label: 'Route Review' },
     { href: '/dashboard/resources', icon: FileText, label: 'Resources' },
     { href: '/dashboard/account', icon: Settings, label: 'Account' }
