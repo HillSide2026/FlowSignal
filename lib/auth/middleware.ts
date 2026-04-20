@@ -4,17 +4,21 @@ import { getTeamForUser, getUser } from '@/lib/db/queries';
 import { redirect } from 'next/navigation';
 
 export type ActionState = {
+  email?: string;
   error?: string;
+  name?: string;
   success?: string;
-  [key: string]: any; // This allows for additional properties
+  [key: string]: string | undefined;
 };
 
-type ValidatedActionFunction<S extends z.ZodType<any, any>, T> = (
+type Schema = z.ZodType<unknown, z.ZodTypeDef, unknown>;
+
+type ValidatedActionFunction<S extends Schema, T> = (
   data: z.infer<S>,
   formData: FormData
 ) => Promise<T>;
 
-export function validatedAction<S extends z.ZodType<any, any>, T>(
+export function validatedAction<S extends Schema, T>(
   schema: S,
   action: ValidatedActionFunction<S, T>
 ) {
@@ -28,13 +32,13 @@ export function validatedAction<S extends z.ZodType<any, any>, T>(
   };
 }
 
-type ValidatedActionWithUserFunction<S extends z.ZodType<any, any>, T> = (
+type ValidatedActionWithUserFunction<S extends Schema, T> = (
   data: z.infer<S>,
   formData: FormData,
   user: User
 ) => Promise<T>;
 
-export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
+export function validatedActionWithUser<S extends Schema, T>(
   schema: S,
   action: ValidatedActionWithUserFunction<S, T>
 ) {

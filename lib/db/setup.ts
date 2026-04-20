@@ -41,7 +41,7 @@ async function setupLocalPostgres() {
   try {
     await execAsync('docker --version');
     console.log('Docker is installed.');
-  } catch (error) {
+  } catch {
     console.error(
       'Docker is not installed. Please install Docker and try again.'
     );
@@ -49,7 +49,18 @@ async function setupLocalPostgres() {
     process.exit(1);
   }
 
-  console.log('Creating docker-compose.yml file...');
+  const dockerComposePath = path.join(process.cwd(), 'docker-compose.yml');
+  const hasDockerCompose = await fs
+    .access(dockerComposePath)
+    .then(() => true)
+    .catch(() => false);
+
+  if (hasDockerCompose) {
+    console.log('Using existing docker-compose.yml file.');
+  } else {
+    console.log('Creating docker-compose.yml file...');
+  }
+
   const dockerComposeContent = `
 services:
   postgres:
@@ -68,17 +79,16 @@ volumes:
   postgres_data:
 `;
 
-  await fs.writeFile(
-    path.join(process.cwd(), 'docker-compose.yml'),
-    dockerComposeContent
-  );
-  console.log('docker-compose.yml file created.');
+  if (!hasDockerCompose) {
+    await fs.writeFile(dockerComposePath, dockerComposeContent);
+    console.log('docker-compose.yml file created.');
+  }
 
   console.log('Starting Docker container with `docker compose up -d`...');
   try {
     await execAsync('docker compose up -d');
     console.log('Docker container started successfully.');
-  } catch (error) {
+  } catch {
     console.error(
       'Failed to start Docker container. Please check Docker and try again.'
     );

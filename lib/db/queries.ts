@@ -3,6 +3,9 @@ import { db } from './drizzle';
 import { activityLogs, teamMembers, users } from './schema';
 import { cookies } from 'next/headers';
 import { verifyToken } from '@/lib/auth/session';
+import { toSafeUser } from '@/lib/auth/safe-user';
+
+export type { SafeUser } from '@/lib/auth/safe-user';
 
 export async function getUser() {
   const sessionCookie = (await cookies()).get('session');
@@ -36,11 +39,16 @@ export async function getUser() {
   return user[0];
 }
 
+export async function getSafeUser() {
+  return toSafeUser(await getUser());
+}
+
 export async function getUserWithTeam(userId: number) {
   const result = await db
     .select({
       user: users,
-      teamId: teamMembers.teamId
+      teamId: teamMembers.teamId,
+      teamRole: teamMembers.role
     })
     .from(users)
     .leftJoin(teamMembers, eq(users.id, teamMembers.userId))

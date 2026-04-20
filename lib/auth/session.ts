@@ -1,10 +1,14 @@
+import 'server-only';
+
 import { compare, hash } from 'bcryptjs';
 import { SignJWT, jwtVerify } from 'jose';
 import { cookies } from 'next/headers';
 import { NewUser } from '@/lib/db/schema';
+import { getSessionSigningSecret } from '@/lib/auth/session-secret';
 
-const key = new TextEncoder().encode(process.env.AUTH_SECRET);
 const SALT_ROUNDS = 10;
+
+const key = new TextEncoder().encode(getSessionSigningSecret());
 
 export async function hashPassword(password: string) {
   return hash(password, SALT_ROUNDS);

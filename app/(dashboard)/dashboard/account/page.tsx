@@ -18,7 +18,9 @@ import {
   updateAccount,
   updatePassword
 } from '@/app/(login)/actions';
-import { TeamDataWithMembers, User } from '@/lib/db/schema';
+import type { TeamDataWithMembers } from '@/lib/db/schema';
+import { canManageWorkspaceMembers } from '@/lib/auth/authorization';
+import type { SafeUser } from '@/lib/auth/safe-user';
 
 type ActionState = {
   name?: string;
@@ -37,7 +39,7 @@ type PasswordState = {
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function AccountFields({ state }: { state: ActionState }) {
-  const { data: user } = useSWR<User>('/api/user', fetcher);
+  const { data: user } = useSWR<SafeUser>('/api/user', fetcher);
 
   return (
     <>
@@ -71,13 +73,16 @@ function AccountFields({ state }: { state: ActionState }) {
 }
 
 function TeamAccess() {
-  const { data: user } = useSWR<User>('/api/user', fetcher);
+  const { data: user } = useSWR<SafeUser>('/api/user', fetcher);
   const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
   const [inviteState, inviteAction, isInvitePending] = useActionState<
     ActionState,
     FormData
   >(inviteTeamMember, {});
-  const isOwner = user?.role === 'owner';
+  const currentMember = teamData?.teamMembers?.find(
+    (member) => member.user.id === user?.id
+  );
+  const canManageMembers = canManageWorkspaceMembers(currentMember?.role);
 
   return (
     <Card>
@@ -138,7 +143,7 @@ function TeamAccess() {
                 type="email"
                 placeholder="colleague@company.com"
                 required
-                disabled={!isOwner}
+                disabled={!canManageMembers}
               />
             </div>
             {inviteState?.error && (
@@ -150,7 +155,7 @@ function TeamAccess() {
             <Button
               type="submit"
               className="bg-[#0614b8] text-white hover:bg-[#07108f]"
-              disabled={isInvitePending || !isOwner}
+              disabled={isInvitePending || !canManageMembers}
             >
               {isInvitePending ? (
                 <>
@@ -167,7 +172,7 @@ function TeamAccess() {
           </form>
         </div>
       </CardContent>
-      {!isOwner && (
+      {!canManageMembers && (
         <CardFooter>
           <p className="text-sm text-gray-500">
             Workspace invitations are limited to owners.
