@@ -1,32 +1,143 @@
-# AGENTS.md
+# AGENT.md
 
 ## What this repo is
 
-FlowSignal is a lead-generation website plus gated advisory portal for Indian accountants, CFOs, and treasury teams dealing with cross-border payments.
+FlowSignal is an advisory intelligence platform for Indian finance teams managing cross-border payments.
+It helps accountants, CFOs, and treasury teams:
+
+* understand how money moves across borders
+* evaluate routes, costs, timelines, and compliance requirements
+* compare tradeoffs across options
+* connect with relevant fintech partners when ready to execute
+
+FlowSignal is not a payments processor.
+It is an intelligence and decision-support layer before execution.
+
+FlowSignal may reward users with FlowPoints, which are small incentives available when users choose to execute through certain recommended and trusted partners.
+FlowPoints do not change FlowSignal's role as an advisory intelligence layer.
 
 The product has two primary surfaces:
 
 1. Public acquisition site
 
-   * attractive marketing site
    * clear positioning for Indian finance teams handling cross-border payments
-   * lead capture and trust-building
-   * CTA paths into consultation, signup, or portal access
+   * trust-building and lead capture
+   * CTA paths into scenario intake, consultation, signup, or portal access
+   * core message: "Understand your routes before you move money."
 
 2. Logged-in portal
 
-   * user-specific workspace
-   * proprietary resources, corridor guidance, payment diagnostics, and advisory content
-   * intended to qualify and nurture leads for fintech payment services
+   * lightweight scenario intake
+   * user-specific route, cost, timeline, compliance, and risk breakdowns
+   * contextual recommendations that explain tradeoffs instead of making decisions
+   * relevant partner matching when the user is ready to execute
 
 This repo is not a full payments execution platform.
 Prefer product decisions that improve:
 
+* confidence
+* transparency
+* trust
 * audience relevance
-* trust and credibility
-* lead capture
-* lead qualification
+* lead capture and qualification
 * portal engagement
+
+## Product experience
+
+The intended product flow is:
+
+1. Pre-sign-in homepage
+
+   * communicate value clearly
+   * anchor the positioning around clarity before execution
+   * keep the public experience lean, clean, and dashboard-like where appropriate
+
+2. Scenario intake after sign-in
+
+   Capture a minimal structured scenario:
+
+   * direction: send or receive
+   * corridor: origin country to destination country
+   * amount and currency
+   * business use case, such as SaaS exports or vendor payments
+   * priority: cost, speed, or balanced
+
+3. Scenario-based route breakdown
+
+   For each viable route, show:
+
+   * route type, such as SWIFT, fintech-assisted, or local rails
+   * cost range, not exact pricing
+   * expected timeline
+   * compliance and documentation requirements
+   * risk flags
+
+4. Comparison layer
+
+   * compare cost vs. speed vs. complexity
+   * show relative positioning across routes
+   * avoid declaring a single universal winner
+
+5. Contextual recommendations
+
+   Recommendations should be contextual, not absolute:
+
+   * best for cost
+   * best for speed
+   * best for simplicity
+
+   Each recommendation must explain:
+
+   * why it fits the scenario
+   * what tradeoffs exist
+
+6. Partner matching layer
+
+   Show partner matches only when relevant.
+   Providers should be mapped to routes with a "why this partner" explanation covering:
+
+   * cost profile
+   * speed
+   * regulatory fit
+   * best use case
+
+   Partner matching is not a marketplace, not ranked listings, and should not imply hidden bias.
+
+7. Incentive layer: FlowPoints
+
+   FlowPoints sit after partner matching.
+   They:
+
+   * display incentive availability for specific partners
+   * reward users after successful partner usage
+   * operate independently of route and recommendation logic
+
+   FlowPoints must not influence:
+
+   * route selection
+   * route ranking
+   * partner matching
+   * recommendations
+
+## Core product principle
+
+FlowSignal does not make decisions.
+It structures the decision so finance teams can make it confidently.
+
+Avoid:
+
+* black-box outputs
+* "best route" claims without context
+* opaque scoring
+* guaranteed savings or timelines
+
+Prioritize:
+
+* transparency
+* structured outputs
+* explainability
+* realistic ranges
+* clear tradeoffs
 
 ## Current architectural reality
 
@@ -40,15 +151,158 @@ Be explicit about what is:
 * missing
 * newly introduced
 
-## Core product principles
+## Product architecture direction
 
-When proposing or implementing changes, optimize for:
+Align product work to this experience:
 
-* Clarity for Indian finance users
-* Trust and credibility over hype
-* Fast understanding of cross-border payment scenarios
-* Useful proprietary insight in the portal
-* Conversion into qualified fintech payment-service leads
+1. Scenario intake layer
+
+   * lightweight structured form
+   * minimal friction
+   * defines context and need
+
+2. Route intelligence engine
+
+   Determines:
+
+   * viable routes
+   * cost ranges
+   * timelines
+   * compliance requirements
+   * risk signals
+
+   Start rule-based, corridor-aware, use-case-aware, and deterministic.
+
+3. Decision layer
+
+   Transforms route data into:
+
+   * comparisons
+   * tradeoffs
+   * contextual recommendations
+
+   Do not introduce hard scoring or forced ranking unless explicitly asked.
+
+4. Partner matching layer
+
+   * map providers to routes
+   * explain fit instead of ranking providers
+   * support qualified lead handoff
+   * base matching on use-case fit, not monetization visibility
+   * never factor FlowPoints or other incentives into partner selection
+
+5. Incentive layer: FlowPoints
+
+   * display incentives as secondary metadata after route and partner fit
+   * reward users after successful partner usage where applicable
+   * keep incentive logic independent from route intelligence, recommendations, and matching
+   * disclose clearly that incentives do not affect recommendations
+
+## Key product concepts
+
+Use this language consistently:
+
+* Scenario: the user's payment context
+* Route: the method of executing payment
+* Provider: the bank or fintech enabling a route
+* Tradeoff: cost vs. speed vs. complexity vs. compliance
+* FlowPoints: secondary incentive metadata that never biases recommendations or matching
+
+## Output schema direction
+
+Each scenario should eventually return:
+
+1. Routes
+
+   * name
+   * cost range
+   * timeline
+   * compliance level
+   * risk flags
+
+2. Comparison
+
+   * cost vs. speed vs. complexity
+   * relative positioning without a forced single winner
+
+3. Recommendations
+
+   * contextual, not absolute
+   * explanation required
+
+4. Providers, optional
+
+   * mapped to routes
+   * "why this provider" explanation
+   * FlowPoints, if applicable, clearly shown as secondary metadata
+   * explanation that incentives do not affect recommendations
+
+Display order for partner-related outputs:
+
+1. route and partner fit
+2. tradeoffs
+3. incentive, if any
+
+## Product guardrails
+
+Neutrality:
+
+Use:
+
+* curated
+* recommended based on fit
+* network of partners
+* when you're ready to execute
+* earn FlowPoints
+* incentive available
+* does not affect recommendation
+
+Minimize:
+
+* best provider
+* top ranked
+* guaranteed savings
+* best reward
+* highest payout
+
+No false precision:
+
+Use:
+
+* ranges, such as 0.6% to 1.2%
+* relative comparisons
+
+Avoid:
+
+* exact pricing
+* guaranteed timelines
+
+No execution layer:
+
+FlowSignal does not:
+
+* hold funds
+* move money
+* integrate into bank accounts or fintechs in the MVP
+
+Incentives must not bias decisions:
+
+FlowPoints:
+
+* must never influence recommendations
+* must never override better-fit options
+* must never influence route ranking or partner matching
+* must always be disclosed when present
+
+When FlowPoints are present, show them as a secondary label, such as "+ Earn X FlowPoints", paired with language like "Incentives do not affect recommendations."
+
+The product works if a user says:
+
+* "I understand my options, the tradeoffs, and any incentives available."
+
+Not:
+
+* "This option was pushed because of rewards."
 
 ## Working style
 
