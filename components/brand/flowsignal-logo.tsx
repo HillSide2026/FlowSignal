@@ -6,6 +6,7 @@ type FlowSignalLogoProps = {
   href?: string;
   className?: string;
   imageClassName?: string;
+  textClassName?: string;
   lockup?: boolean;
 };
 
@@ -13,6 +14,7 @@ export function FlowSignalLogo({
   href = '/',
   className,
   imageClassName,
+  textClassName,
   lockup = false
 }: FlowSignalLogoProps) {
   const logo = lockup ? (
@@ -34,7 +36,7 @@ export function FlowSignalLogo({
         priority
         className={cn('h-9 w-auto', imageClassName)}
       />
-      <span className="text-lg font-semibold text-gray-950">FlowSignal</span>
+      <span className={cn('text-lg font-semibold text-gray-950', textClassName)}>FlowSignal</span>
     </span>
   );
 

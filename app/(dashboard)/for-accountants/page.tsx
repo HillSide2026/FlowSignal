@@ -20,93 +20,119 @@ const useCases = [
   }
 ];
 
+const workflowSteps = [
+  'Start with client flow facts',
+  'Identify document and route questions',
+  'Prepare notes for specialist review',
+  'Download checklists for repeat use'
+];
+
 export default function ForAccountantsPage() {
   return (
     <main>
-      <section className="bg-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1fr_0.8fr] lg:px-8 lg:py-20">
-          <div className="max-w-3xl">
-            <p className="text-sm font-semibold text-[#0614b8]">
+      {/* SECTION 1 — HERO */}
+      <section className="rounded-b-[32px] bg-gradient-to-br from-[#102A6B] to-[#071225]">
+        <div className="mx-auto flex min-h-[400px] max-w-7xl items-center px-6 py-24 lg:px-8">
+          <div className="max-w-[760px]">
+            <p className="text-sm font-semibold uppercase tracking-widest text-blue-200">
               For accountants
             </p>
-            <h1 className="mt-4 text-4xl font-semibold leading-tight text-gray-950 sm:text-5xl">
+            <h1 className="mt-6 text-5xl font-bold leading-tight tracking-tight text-white sm:text-6xl">
               A cleaner way to prepare cross-border client conversations.
             </h1>
-            <p className="mt-6 text-lg leading-8 text-gray-600">
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-blue-100">
               FlowSignal gives accounting teams a neutral review layer for
               client funds movement questions, with emphasis on facts,
               documentation, and clear handoffs.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
               <Button
                 asChild
                 size="lg"
-                className="bg-[#0614b8] text-white hover:bg-[#07108f]"
+                className="rounded-xl bg-white px-7 py-4 font-semibold text-[#0B1633] hover:bg-gray-100"
               >
                 <Link href="/sign-in">
                   Open member dashboard
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button
+                asChild
+                size="lg"
+                className="rounded-xl border border-white/20 bg-transparent px-7 py-4 text-white hover:bg-white/10"
+              >
                 <Link href="/insights">Read insights</Link>
               </Button>
             </div>
           </div>
-          <div className="border border-gray-200 bg-gray-50 p-6">
-            <p className="text-xs font-semibold uppercase text-gray-500">
+        </div>
+      </section>
+
+      {/* SECTION 2 — USE CASES */}
+      <section className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
+          <div className="mb-12">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#155EEF]">
+              Where it helps
+            </p>
+            <h2 className="mt-3 text-3xl font-bold text-[#08111F] sm:text-4xl">
+              Three ways accountants use FlowSignal
+            </h2>
+          </div>
+          <div className="grid gap-8 lg:grid-cols-3">
+            {useCases.map((useCase) => (
+              <article
+                key={useCase.title}
+                className="rounded-xl bg-white p-8 shadow-sm"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EAF2FF]">
+                  <useCase.icon className="h-6 w-6 text-[#155EEF]" />
+                </div>
+                <h2 className="mt-6 text-lg font-semibold text-[#08111F]">
+                  {useCase.title}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-[#64748B]">
+                  {useCase.text}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3 — WORKFLOW + SUPPORTING MESSAGE */}
+      <section className="bg-white">
+        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-24 lg:grid-cols-2 lg:items-start lg:px-8">
+          <div>
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#155EEF]">
+              Built to sit beside professional judgment
+            </p>
+            <h2 className="mt-4 text-3xl font-bold text-[#08111F]">
+              Cleaner inputs for more focused reviews.
+            </h2>
+            <p className="mt-4 text-base leading-7 text-[#64748B]">
+              FlowSignal does not replace tax, legal, or compliance review. It
+              helps accountants prepare clearer inputs so those reviews can be
+              more focused.
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-gray-50 p-8">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#155EEF]">
               Accountant workflow
             </p>
-            <div className="mt-6 space-y-5">
-              {[
-                'Start with client flow facts',
-                'Identify document and route questions',
-                'Prepare notes for specialist review',
-                'Download checklists for repeat use'
-              ].map((step, index) => (
+            <div className="mt-8 space-y-6">
+              {workflowSteps.map((step, index) => (
                 <div key={step} className="flex gap-4">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center bg-[#0584c7] text-sm font-semibold text-white">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#EAF2FF] text-sm font-bold text-[#155EEF]">
                     {index + 1}
                   </span>
-                  <p className="pt-1 text-sm font-medium text-gray-800">
+                  <p className="pt-1 text-sm font-medium text-[#08111F]">
                     {step}
                   </p>
                 </div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-gray-200 bg-gray-50">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
-          {useCases.map((useCase) => (
-            <article key={useCase.title} className="bg-white p-6 shadow-sm">
-              <div className="flex h-11 w-11 items-center justify-center bg-[#0614b8] text-white">
-                <useCase.icon className="h-5 w-5" />
-              </div>
-              <h2 className="mt-5 text-lg font-semibold text-gray-950">
-                {useCase.title}
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                {useCase.text}
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
-          <div className="max-w-3xl">
-            <h2 className="text-3xl font-semibold text-gray-950">
-              Built to sit beside existing professional judgment.
-            </h2>
-            <p className="mt-4 text-base leading-7 text-gray-600">
-              FlowSignal does not replace tax, legal, or compliance review. It
-              helps accountants prepare clearer inputs so those reviews can be
-              more focused.
-            </p>
           </div>
         </div>
       </section>

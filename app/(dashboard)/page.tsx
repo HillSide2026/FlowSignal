@@ -9,7 +9,6 @@ import {
   ShieldCheck
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { FlowSignalLogo } from '@/components/brand/flowsignal-logo';
 
 const comparisonRows = [
   {
@@ -88,66 +87,165 @@ const trustSignals = [
 export default function HomePage() {
   return (
     <main>
+      {/* SECTION 1 — HERO */}
+      <section className="rounded-b-[32px] bg-gradient-to-br from-[#102A6B] to-[#071225]">
+        <div className="mx-auto flex min-h-[560px] max-w-7xl items-center px-6 py-24 lg:px-8 lg:py-32">
+          <div className="max-w-[760px]">
+            <p className="text-sm font-semibold uppercase tracking-widest text-blue-200">
+              Cross-border payment intelligence
+            </p>
+            <h1 className="mt-6 text-5xl font-bold leading-tight tracking-tight text-white sm:text-6xl lg:text-7xl">
+              See the best payment options now
+            </h1>
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-blue-100">
+              FlowSignal helps CFOs, Accountants, and Treasury compare Routes,
+              Costs, &amp; Timelines for cross-border payments.
+            </p>
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+              <Button
+                asChild
+                size="lg"
+                className="rounded-xl bg-white px-7 py-4 font-semibold text-[#0B1633] hover:bg-gray-100"
+              >
+                <Link href="/sign-up">
+                  See your best payment options
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button
+                asChild
+                size="lg"
+                className="rounded-xl border border-white/20 bg-transparent px-7 py-4 text-white hover:bg-white/10"
+              >
+                <Link href="/intelligence">Explore how it works</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 2 — PAIN POINTS */}
+      <section className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
+          <div className="mb-12 max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#155EEF]">
+              Where it gets complicated
+            </p>
+            <h2 className="mt-3 text-3xl font-bold text-[#08111F] sm:text-4xl">
+              What makes cross-border payments hard
+            </h2>
+          </div>
+          <div className="grid gap-8 lg:grid-cols-3">
+            {painPoints.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-xl bg-white p-8 shadow-sm"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EAF2FF]">
+                  <item.icon className="h-6 w-6 text-[#155EEF]" />
+                </div>
+                <h2 className="mt-6 text-lg font-semibold text-[#08111F]">
+                  {item.title}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-[#64748B]">
+                  {item.text}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 3 — CORRIDORS */}
       <section className="bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-          <div className="grid gap-10 lg:grid-cols-[1fr_0.9fr] lg:items-center">
-            <div className="max-w-3xl">
-              <p className="text-sm font-semibold text-[#0614b8]">
-                Cross-border payment intelligence for Indian finance teams
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest text-[#155EEF]">
+                High-confusion corridors
               </p>
-              <h1 className="mt-5 text-4xl font-semibold leading-tight text-gray-950 sm:text-5xl">
-                See the best payment options before your next international
-                transfer.
-              </h1>
-              <p className="mt-6 text-lg leading-8 text-gray-600">
-                FlowSignal helps CFOs, external accountants, and treasury teams
-                compare routes, realistic costs, timelines, compliance
-                requirements, and provider fit for cross-border payments.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Button
-                  asChild
-                  size="lg"
-                  className="bg-[#0614b8] text-white hover:bg-[#07108f]"
-                >
-                  <Link href="/sign-up">
-                    See your best payment options
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-                <Button asChild size="lg" variant="outline">
-                  <Link href="/intelligence">Explore how it works</Link>
-                </Button>
-              </div>
-              <p className="mt-5 max-w-2xl text-sm leading-6 text-gray-500">
-                Built for SaaS exporters, import/export businesses, and
-                companies with recurring international flows. Not a payment
-                processor or a promise of one universal route.
+              <h2 className="mt-4 text-3xl font-bold text-[#08111F]">
+                Route guidance for flows Indian finance teams handle often.
+              </h2>
+              <p className="mt-4 text-base leading-7 text-[#64748B]">
+                Start with the payment scenario, then compare route options by
+                cost, timing, provider fit, and documentation requirements.
               </p>
             </div>
-
-            <div className="border border-gray-200 bg-gray-50 p-5 shadow-sm">
-              <div className="flex items-center justify-between gap-4 border-b border-gray-200 pb-5">
-                <div>
-                  <p className="text-xs font-semibold uppercase text-gray-500">
-                    Payment options snapshot
+            <div className="grid gap-4">
+              {corridors.map((corridor) => (
+                <article
+                  key={corridor.title}
+                  className="rounded-xl bg-gray-50 p-6"
+                >
+                  <div className="mb-3 flex items-center gap-3">
+                    <div className="h-1.5 w-8 rounded-full bg-[#155EEF]" />
+                    <h3 className="text-base font-semibold text-[#08111F]">
+                      {corridor.title}
+                    </h3>
+                  </div>
+                  <p className="text-sm leading-6 text-[#64748B]">
+                    {corridor.text}
                   </p>
-                  <h2 className="mt-2 text-xl font-semibold text-gray-950">
-                    India to US SaaS export receipt
-                  </h2>
+                </article>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SECTION 4 — SNAPSHOT + STATS */}
+      <section className="bg-gray-50">
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
+          <div className="grid gap-12 lg:grid-cols-[1fr_1.2fr] lg:items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest text-[#155EEF]">
+                What FlowSignal evaluates
+              </p>
+              <h2 className="mt-4 text-3xl font-bold text-[#08111F]">
+                Clarity across every dimension of a cross-border payment.
+              </h2>
+              <div className="mt-10 grid grid-cols-3 gap-8 border-t border-[#E5E7EB] pt-10">
+                <div>
+                  <p className="text-4xl font-bold text-[#08111F]">3+</p>
+                  <p className="mt-2 text-sm text-[#64748B]">
+                    Active corridors
+                  </p>
                 </div>
-                <FlowSignalLogo lockup imageClassName="w-28" />
+                <div>
+                  <p className="text-4xl font-bold text-[#08111F]">5</p>
+                  <p className="mt-2 text-sm text-[#64748B]">
+                    Route dimensions
+                  </p>
+                </div>
+                <div>
+                  <p className="text-4xl font-bold text-[#08111F]">100%</p>
+                  <p className="mt-2 text-sm text-[#64748B]">
+                    Neutral guidance
+                  </p>
+                </div>
               </div>
-              <div className="mt-5 divide-y divide-gray-200">
+            </div>
+
+            <div className="rounded-xl bg-white p-6 shadow-sm">
+              <div className="border-b border-[#E5E7EB] pb-5">
+                <p className="text-xs font-semibold uppercase tracking-wide text-[#64748B]">
+                  Payment options snapshot
+                </p>
+                <h2 className="mt-2 text-lg font-bold text-[#08111F]">
+                  India to US SaaS export receipt
+                </h2>
+              </div>
+              <div className="mt-2 divide-y divide-[#E5E7EB]">
                 {comparisonRows.map((row) => (
                   <div
                     key={row.label}
-                    className="grid gap-2 py-4 sm:grid-cols-[7rem_1fr]"
+                    className="grid gap-2 py-3.5 sm:grid-cols-[7rem_1fr]"
                   >
-                    <p className="text-sm font-semibold text-gray-950">
+                    <p className="text-sm font-semibold text-[#08111F]">
                       {row.label}
                     </p>
-                    <p className="text-sm leading-6 text-gray-600">
+                    <p className="text-sm leading-6 text-[#64748B]">
                       {row.value}
                     </p>
                   </div>
@@ -158,102 +256,38 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-gray-200 bg-gray-50">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
-          {painPoints.map((item) => (
-            <article key={item.title} className="bg-white p-6 shadow-sm">
-              <div className="flex h-11 w-11 items-center justify-center bg-[#0614b8] text-white">
-                <item.icon className="h-5 w-5" />
-              </div>
-              <h2 className="mt-5 text-lg font-semibold text-gray-950">
-                {item.title}
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                {item.text}
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
-
+      {/* SECTION 5 — HOW FLOWSIGNAL WORKS */}
       <section className="bg-white">
-        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-8">
-          <div>
-            <p className="text-sm font-semibold text-[#0614b8]">
-              High-confusion corridors
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8">
+          <div className="mb-12 text-center">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[#155EEF]">
+              How FlowSignal works
             </p>
-            <h2 className="mt-4 text-3xl font-semibold text-gray-950">
-              Route guidance for flows Indian finance teams handle often.
+            <h2 className="mt-3 text-3xl font-bold text-[#08111F] sm:text-4xl">
+              Built for honest, neutral guidance
             </h2>
-            <p className="mt-4 text-sm leading-6 text-gray-600">
-              Start with the payment scenario, then compare route options by
-              cost, timing, provider fit, and documentation requirements.
+            <p className="mx-auto mt-4 max-w-2xl text-base text-[#64748B]">
+              FlowSignal is not a payment processor. It helps evaluate options
+              so your team arrives at the right decision.
             </p>
           </div>
-          <div className="grid gap-4">
-            {corridors.map((corridor) => (
+          <div className="grid gap-8 lg:grid-cols-3">
+            {trustSignals.map((signal) => (
               <article
-                key={corridor.title}
-                className="border-l-2 border-[#0584c7] pl-4"
+                key={signal.title}
+                className="rounded-xl bg-gray-50 p-8"
               >
-                <h3 className="text-base font-semibold text-gray-950">
-                  {corridor.title}
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-gray-600">
-                  {corridor.text}
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#EAF2FF]">
+                  <signal.icon className="h-6 w-6 text-[#155EEF]" />
+                </div>
+                <h2 className="mt-6 text-lg font-semibold text-[#08111F]">
+                  {signal.title}
+                </h2>
+                <p className="mt-3 text-sm leading-6 text-[#64748B]">
+                  {signal.text}
                 </p>
               </article>
             ))}
-          </div>
-        </div>
-      </section>
-
-      <section className="border-y border-gray-200 bg-gray-50">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-14 sm:px-6 lg:grid-cols-3 lg:px-8">
-          {trustSignals.map((signal) => (
-            <article key={signal.title} className="bg-white p-6 shadow-sm">
-              <div className="flex h-11 w-11 items-center justify-center bg-[#0584c7] text-white">
-                <signal.icon className="h-5 w-5" />
-              </div>
-              <h2 className="mt-5 text-lg font-semibold text-gray-950">
-                {signal.title}
-              </h2>
-              <p className="mt-3 text-sm leading-6 text-gray-600">
-                {signal.text}
-              </p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="bg-white">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-14 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
-          <div className="max-w-2xl">
-            <p className="text-sm font-semibold text-[#0614b8]">
-              For CFOs, external accountants, and treasury teams
-            </p>
-            <h2 className="mt-3 text-3xl font-semibold text-gray-950">
-              Bring a clearer comparison into every payment decision.
-            </h2>
-            <p className="mt-4 text-sm leading-6 text-gray-600">
-              Use FlowSignal to review options before choosing a provider,
-              preparing documents, or escalating a payment question.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <Button
-              asChild
-              size="lg"
-              className="bg-[#0614b8] text-white hover:bg-[#07108f]"
-            >
-              <Link href="/sign-up">
-                See your best payment options
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </Button>
-            <Button asChild size="lg" variant="outline">
-              <Link href="/for-accountants">For accountants</Link>
-            </Button>
           </div>
         </div>
       </section>

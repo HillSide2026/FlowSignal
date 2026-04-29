@@ -7,7 +7,10 @@ import { SWRConfig } from 'swr';
 export const metadata: Metadata = {
   title: 'FlowSignal | Cross-Border Flow Intelligence',
   description:
-    'Neutral cross-border flow intelligence for professional advisory teams.'
+    'Neutral cross-border flow intelligence for professional advisory teams.',
+  icons: {
+    icon: '/brand/flowsignal-mark.png'
+  }
 };
 
 export const viewport: Viewport = {

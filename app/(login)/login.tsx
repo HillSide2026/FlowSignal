@@ -58,7 +58,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 defaultValue={state.email}
                 required
                 maxLength={50}
-                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-[#0584c7] focus:outline-none focus:ring-[#0584c7] sm:text-sm"
+                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-[#155EEF] focus:outline-none focus:ring-[#155EEF] sm:text-sm"
                 placeholder="name@company.com"
               />
             </div>
@@ -82,7 +82,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
                 required
                 minLength={8}
                 maxLength={100}
-                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-[#0584c7] focus:outline-none focus:ring-[#0584c7] sm:text-sm"
+                className="relative block w-full appearance-none rounded-md border border-gray-300 px-3 py-2 text-gray-900 placeholder-gray-500 focus:z-10 focus:border-[#155EEF] focus:outline-none focus:ring-[#155EEF] sm:text-sm"
                 placeholder="Enter your password"
               />
             </div>
@@ -95,7 +95,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
           <div>
             <Button
               type="submit"
-              className="flex w-full items-center justify-center border border-transparent bg-[#0614b8] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#07108f] focus:outline-none focus:ring-2 focus:ring-[#0584c7] focus:ring-offset-2"
+              className="flex w-full items-center justify-center rounded-xl border border-transparent bg-[#155EEF] px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-[#0F4CD1] focus:outline-none focus:ring-2 focus:ring-[#155EEF] focus:ring-offset-2"
               disabled={pending}
             >
               {pending ? (
@@ -131,7 +131,7 @@ export function Login({ mode = 'signin' }: { mode?: 'signin' | 'signup' }) {
               href={`${mode === 'signin' ? '/sign-up' : '/sign-in'}${
                 redirect ? `?redirect=${redirect}` : ''
               }`}
-              className="flex w-full justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#0584c7] focus:ring-offset-2"
+              className="flex w-full justify-center rounded-xl border border-[#E5E7EB] bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#155EEF] focus:ring-offset-2"
             >
               {mode === 'signin'
                 ? 'Create member access'

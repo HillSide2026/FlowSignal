@@ -39,7 +39,10 @@ function UserMenu() {
 
   if (!user) {
     return (
-      <Button asChild className="bg-[#0614b8] text-white hover:bg-[#07108f]">
+      <Button
+        asChild
+        className="rounded-xl bg-[#155EEF] text-white hover:bg-[#0F4CD1]"
+      >
         <Link href="/sign-in">Login</Link>
       </Button>
     );
@@ -80,16 +83,16 @@ function UserMenu() {
 
 function Header() {
   return (
-    <header className="border-b border-gray-200 bg-white">
+    <header className="border-b border-[#E5E7EB] bg-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
         <FlowSignalLogo />
         <div className="flex items-center gap-5">
-          <nav className="hidden items-center gap-5 md:flex">
+          <nav className="hidden items-center gap-6 md:flex">
             {publicNavItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className="text-sm font-medium text-gray-600 transition-colors hover:text-gray-950"
+                className="text-sm font-medium text-[#64748B] transition-colors hover:text-[#08111F]"
               >
                 {item.label}
               </Link>
@@ -104,11 +107,99 @@ function Header() {
   );
 }
 
+function Footer() {
+  return (
+    <footer className="mt-16 rounded-t-[32px] bg-[#071225]">
+      <div className="mx-auto max-w-7xl px-6 py-16 lg:px-8">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
+          <div>
+            <span className="text-lg font-semibold text-white">FlowSignal</span>
+            <p className="mt-4 max-w-xs text-sm leading-6 text-slate-400">
+              Neutral cross-border flow intelligence for professional advisory
+              teams.
+            </p>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-300">
+              Navigation
+            </p>
+            <ul className="mt-4 space-y-3">
+              {publicNavItems.map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-slate-400 transition-colors hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-300">
+              Product
+            </p>
+            <ul className="mt-4 space-y-3">
+              {[
+                { href: '/dashboard', label: 'Flow Diagnostics' },
+                { href: '/dashboard/scenarios', label: 'Scenarios' },
+                { href: '/dashboard/route-review', label: 'Route Review' },
+                { href: '/dashboard/resources', label: 'Resources' }
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-slate-400 transition-colors hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-slate-300">
+              Access
+            </p>
+            <ul className="mt-4 space-y-3">
+              {[
+                { href: '/sign-in', label: 'Sign In' },
+                { href: '/sign-up', label: 'Create Access' }
+              ].map((item) => (
+                <li key={item.href}>
+                  <Link
+                    href={item.href}
+                    className="text-sm text-slate-400 transition-colors hover:text-white"
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="mt-12 border-t border-white/10 pt-6">
+          <p className="text-sm text-slate-500">
+            © {new Date().getFullYear()} FlowSignal. Not a payment processor.
+            For advisory and review purposes only.
+          </p>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <section className="flex flex-col min-h-screen">
+    <section className="flex min-h-screen flex-col">
       <Header />
-      {children}
+      <div className="flex-1">{children}</div>
+      <Footer />
     </section>
   );
 }
