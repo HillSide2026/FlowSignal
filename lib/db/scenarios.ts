@@ -46,6 +46,8 @@ export type ScenarioListItem = {
   updatedAt: Date;
   resultCreatedAt: Date | null;
   rulesVersion: string | null;
+  routeCount: number;
+  providerMatchCount: number;
 };
 
 export type ScenarioWithResult = {
@@ -123,7 +125,9 @@ export async function listScenariosForUser(
       status: paymentScenarios.status,
       updatedAt: paymentScenarios.updatedAt,
       resultCreatedAt: scenarioResults.createdAt,
-      rulesVersion: scenarioResults.rulesVersion
+      rulesVersion: scenarioResults.rulesVersion,
+      routesJson: scenarioResults.routesJson,
+      providersJson: scenarioResults.providersJson
     })
     .from(paymentScenarios)
     .leftJoin(
@@ -131,7 +135,16 @@ export async function listScenariosForUser(
       eq(scenarioResults.scenarioId, paymentScenarios.id)
     )
     .where(eq(paymentScenarios.userId, userId))
-    .orderBy(desc(paymentScenarios.updatedAt), desc(paymentScenarios.id));
+    .orderBy(desc(paymentScenarios.updatedAt), desc(paymentScenarios.id))
+    .then((rows) =>
+      rows.map(({ routesJson, providersJson, ...row }) => ({
+        ...row,
+        routeCount: Array.isArray(routesJson) ? routesJson.length : 0,
+        providerMatchCount: Array.isArray(providersJson)
+          ? providersJson.length
+          : 0
+      }))
+    );
 }
 
 export async function getScenarioForUser(

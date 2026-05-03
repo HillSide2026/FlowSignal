@@ -53,6 +53,48 @@ Portal:
 * deepen engagement
 * surface intent and qualification signals for fintech payment services
 
+## Approved Portal Roadmap
+
+Phase 1: Scenario Command Center
+
+* Replace `/dashboard` with a scenario-first command center.
+* Primary CTA: Start a Route Brief.
+* Show In Progress, Needs Attention, and Ready for Action scenario groups.
+* Capture first-login product role on `users.role`:
+  * `cfo`
+  * `accountant`
+  * `treasury`
+
+Phase 2: Results To Decision UX
+
+* Move executive summary and comparison above detailed route cards.
+* Present route recommendations as decision labels: lower cost, faster, bank-reviewed, operationally simpler.
+* Add "When NOT to use this" to build trust.
+* Move compliance, risk flags, and deep breakdowns lower on the page, preferably collapsed.
+
+Phase 3: Action Layer
+
+* Add Request Introduction and Ask FlowSignal to Review This actions.
+* Add a pre-handoff flow:
+  * confirm scenario
+  * collect missing info
+  * capture urgency and notes
+* Persist intent in `handoff_requests`.
+* Confirmation copy: "FlowSignal will review and connect you with the right partner."
+
+Phase 4: Role-Based Output
+
+* Use `users.role` to change copy and section emphasis, not route logic.
+* CFO view: cost/speed tradeoffs, audit confidence, escalation triggers, board/audit considerations.
+* Accountant view: client questions and documents to request from client.
+* Treasury view: operational checklist, cutoff times, reconciliation method, beneficiary setup.
+
+Phase 5: Scenario-Aware Resources
+
+* Replace static resource orientation with generated scenario work products.
+* Generate Documents Needed, Client Intake Questions, Internal Approval Note, and Partner Intro Brief.
+* Feed Partner Intro Brief content directly into the handoff/request-introduction workflow.
+
 ## Milestone 0: Baseline repo audit
 
 Objective:

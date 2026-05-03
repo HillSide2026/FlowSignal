@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import {
-  Calculator,
   ClipboardList,
   FileText,
   Menu,
@@ -22,7 +21,7 @@ export default function DashboardLayout({
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const navItems = [
-    { href: '/dashboard', icon: Calculator, label: 'Flow Diagnostics' },
+    { href: '/dashboard', icon: ClipboardList, label: 'Command Center' },
     { href: '/dashboard/scenarios', icon: ClipboardList, label: 'Scenarios' },
     { href: '/dashboard/route-review', icon: Route, label: 'Route Review' },
     { href: '/dashboard/resources', icon: FileText, label: 'Resources' },

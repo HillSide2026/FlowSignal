@@ -1,220 +1,383 @@
-'use client';
-
-import { useMemo, useState } from 'react';
-import { Calculator, FileText, Route, ShieldCheck } from 'lucide-react';
+import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+  AlertTriangle,
+  ArrowRight,
+  CheckCircle2,
+  ClipboardList,
+  PlusCircle,
+  Route,
+  Send
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { getUser } from '@/lib/db/queries';
+import {
+  listScenariosForUser,
+  type ScenarioListItem
+} from '@/lib/db/scenarios';
+import {
+  countryLabels,
+  directionLabels,
+  priorityLabels,
+  useCaseLabels
+} from './scenarios/scenario-options';
+import { RolePicker } from './role-picker';
 
-const diagnosticNotes = [
-  {
-    title: 'Documentation',
-    text: 'Prepare invoices, agreements, banking records, and purpose notes before review.',
-    icon: FileText
+const productRoles = ['cfo', 'accountant', 'treasury'] as const;
+
+const roleContent = {
+  cfo: {
+    label: 'CFO / Founder Finance',
+    title: 'Turn route options into finance decisions.',
+    text: 'Prioritize cost, speed, audit confidence, and escalation triggers before the team executes a cross-border payment.'
   },
-  {
-    title: 'Route context',
-    text: 'Separate countries, counterparties, intermediaries, and timing into a clear route map.',
-    icon: Route
+  accountant: {
+    label: 'Accountant',
+    title: 'Prepare client-ready route reviews.',
+    text: 'Use saved scenarios to frame client questions, document requests, and advisory follow-up.'
   },
-  {
-    title: 'Review posture',
-    text: 'Use the output as a planning prompt for professional analysis, not as a recommendation.',
-    icon: ShieldCheck
+  treasury: {
+    label: 'Treasury / Finance Ops',
+    title: 'Keep payment operations repeatable.',
+    text: 'Track route fit, beneficiary setup, documentation, and reconciliation readiness across recurring flows.'
   }
-];
+} as const;
 
-function toNumber(value: string) {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-}
+export default async function ScenarioCommandCenterPage() {
+  const user = await getUser();
+  if (!user) {
+    redirect('/sign-in');
+  }
 
-export default function FlowDiagnosticsPage() {
-  const [monthlyOutbound, setMonthlyOutbound] = useState('125000');
-  const [monthlyInbound, setMonthlyInbound] = useState('45000');
-  const [corridors, setCorridors] = useState('3');
-  const [urgentShare, setUrgentShare] = useState('20');
-  const [manualHours, setManualHours] = useState('6');
-
-  const diagnostic = useMemo(() => {
-    const outbound = toNumber(monthlyOutbound);
-    const inbound = toNumber(monthlyInbound);
-    const corridorCount = Math.max(1, Math.round(toNumber(corridors)));
-    const urgent = Math.min(100, toNumber(urgentShare));
-    const hours = toNumber(manualHours);
-    const volume = outbound + inbound;
-
-    const volumeScore = Math.min(34, volume / 15000);
-    const corridorScore = Math.min(24, corridorCount * 6);
-    const timingScore = Math.min(22, urgent * 0.22);
-    const manualScore = Math.min(20, hours * 2.5);
-    const index = Math.min(
-      100,
-      Math.round(volumeScore + corridorScore + timingScore + manualScore)
-    );
-
-    const priority =
-      index >= 70 ? 'High' : index >= 40 ? 'Moderate' : 'Baseline';
-    const estimatedReviewHours = Math.round(
-      (hours * 4.3 + corridorCount * 2.5 + urgent / 12) * 10
-    ) / 10;
-
-    return {
-      index,
-      priority,
-      estimatedReviewHours,
-      volume
-    };
-  }, [corridors, manualHours, monthlyInbound, monthlyOutbound, urgentShare]);
+  const scenarios = await listScenariosForUser(user.id);
+  const productRole = isProductRole(user.role) ? user.role : null;
+  const needsAttention = scenarios.filter(isNeedsAttention);
+  const readyForAction = scenarios.filter(isReadyForAction);
+  const inProgress = scenarios.filter(
+    (scenario) => !isNeedsAttention(scenario) && !isReadyForAction(scenario)
+  );
+  const recentScenarios = scenarios.slice(0, 3);
+  const roleCopy = productRole ? roleContent[productRole] : null;
 
   return (
     <section className="flex-1 p-4 lg:p-8">
-      <div className="mb-8 max-w-3xl">
-        <p className="text-sm font-semibold text-[#0614b8]">
-          Member dashboard
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold text-gray-950">
-          Flow Diagnostics
-        </h1>
-        <p className="mt-3 text-sm leading-6 text-gray-600">
-          Use this gated calculator to frame a cross-border flow review before
-          preparing notes, route questions, or client-facing materials.
-        </p>
+      <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold text-[#0614b8]">
+            Scenario command center
+          </p>
+          <h1 className="mt-2 text-2xl font-semibold text-gray-950">
+            {roleCopy?.title ?? 'Start with the payment scenario.'}
+          </h1>
+          <p className="mt-3 text-sm leading-6 text-gray-600">
+            {roleCopy?.text ??
+              'FlowSignal organizes route briefs, unsupported scenarios, and partner-ready opportunities from one workspace.'}
+          </p>
+        </div>
+        <Button
+          asChild
+          className="bg-[#0614b8] text-white hover:bg-[#07108f]"
+        >
+          <Link href="/dashboard/scenarios/new">
+            <PlusCircle className="h-4 w-4" />
+            Start a Route Brief
+          </Link>
+        </Button>
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calculator className="h-5 w-5 text-[#0614b8]" />
-              Diagnostic calculator
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <Label htmlFor="monthly-outbound" className="mb-2">
-                  Monthly outbound flow
-                </Label>
-                <Input
-                  id="monthly-outbound"
-                  inputMode="decimal"
-                  value={monthlyOutbound}
-                  onChange={(event) => setMonthlyOutbound(event.target.value)}
-                />
+      {!productRole ? (
+        <div className="mb-6">
+          <RolePicker />
+        </div>
+      ) : (
+        <div className="mb-6 border border-gray-200 bg-white p-4">
+          <p className="text-xs font-semibold uppercase text-gray-500">
+            Current view
+          </p>
+          <p className="mt-2 text-sm font-medium text-gray-950">
+            {roleCopy?.label}
+          </p>
+        </div>
+      )}
+
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <div className="flex h-11 w-11 items-center justify-center bg-[#0614b8] text-white">
+                <Route className="h-5 w-5" />
               </div>
-              <div>
-                <Label htmlFor="monthly-inbound" className="mb-2">
-                  Monthly inbound flow
-                </Label>
-                <Input
-                  id="monthly-inbound"
-                  inputMode="decimal"
-                  value={monthlyInbound}
-                  onChange={(event) => setMonthlyInbound(event.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="corridors" className="mb-2">
-                  Active corridors
-                </Label>
-                <Input
-                  id="corridors"
-                  inputMode="numeric"
-                  value={corridors}
-                  onChange={(event) => setCorridors(event.target.value)}
-                />
-              </div>
-              <div>
-                <Label htmlFor="urgent-share" className="mb-2">
-                  Time-sensitive share
-                </Label>
-                <Input
-                  id="urgent-share"
-                  inputMode="decimal"
-                  value={urgentShare}
-                  onChange={(event) => setUrgentShare(event.target.value)}
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <Label htmlFor="manual-hours" className="mb-2">
-                  Manual review hours per week
-                </Label>
-                <Input
-                  id="manual-hours"
-                  inputMode="decimal"
-                  value={manualHours}
-                  onChange={(event) => setManualHours(event.target.value)}
-                />
-              </div>
+              <h2 className="mt-4 text-xl font-semibold text-gray-950">
+                Build the next route brief
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm leading-6 text-gray-600">
+                Enter corridor, amount, use case, and priority. FlowSignal will
+                return route options, tradeoffs, documentation needs, partner
+                fit, and next-step signals.
+              </p>
             </div>
-            <p className="mt-4 text-xs leading-5 text-gray-500">
-              Directional planning estimate only. Review outputs should be
-              validated by the appropriate professional team.
-            </p>
-          </CardContent>
-        </Card>
+            <Button
+              asChild
+              className="bg-[#0614b8] text-white hover:bg-[#07108f]"
+            >
+              <Link href="/dashboard/scenarios/new">
+                Start a Route Brief
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Diagnostic output</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
-              <div className="border border-gray-200 p-4">
-                <p className="text-sm text-gray-500">Flow exposure index</p>
-                <p className="mt-2 text-4xl font-semibold text-gray-950">
-                  {diagnostic.index}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="border border-gray-200 p-4">
-                  <p className="text-sm text-gray-500">Review priority</p>
-                  <p className="mt-2 text-lg font-semibold text-[#0614b8]">
-                    {diagnostic.priority}
-                  </p>
-                </div>
-                <div className="border border-gray-200 p-4">
-                  <p className="text-sm text-gray-500">Monthly volume</p>
-                  <p className="mt-2 text-lg font-semibold text-gray-950">
-                    {diagnostic.volume.toLocaleString()}
-                  </p>
-                </div>
-              </div>
-              <div className="border-l-2 border-[#0584c7] pl-4">
-                <p className="text-sm leading-6 text-gray-700">
-                  Estimated documentation and preparation load:{' '}
-                  <span className="font-semibold">
-                    {diagnostic.estimatedReviewHours} hours per month
-                  </span>
-                  .
-                </p>
-              </div>
+      <div className="grid gap-6 xl:grid-cols-3">
+        <ScenarioBucket
+          title="In Progress"
+          description="Saved route briefs that are evaluated but not partner-ready yet."
+          icon={ClipboardList}
+          emptyText={
+            scenarios.length === 0
+              ? 'No saved scenarios yet.'
+              : 'No in-progress briefs right now.'
+          }
+          scenarios={inProgress}
+        />
+        <ScenarioBucket
+          title="Needs Attention"
+          description="Unsupported scenarios and briefs without usable route output."
+          icon={AlertTriangle}
+          emptyText="No scenarios need attention."
+          scenarios={needsAttention}
+          tone="attention"
+        />
+        <ScenarioBucket
+          title="Ready for Action"
+          description="Evaluated scenarios with partner fit that can lead into introduction."
+          icon={Send}
+          emptyText="No partner-ready scenarios yet."
+          scenarios={readyForAction}
+          tone="ready"
+          actionLabel="Review intro path"
+        />
+      </div>
+
+      <Card className="mt-6">
+        <CardHeader>
+          <CardTitle>Recent scenarios</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {recentScenarios.length > 0 ? (
+            <div className="grid gap-3">
+              {recentScenarios.map((scenario) => (
+                <ScenarioRow key={scenario.id} scenario={scenario} />
+              ))}
             </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-3">
-        {diagnosticNotes.map((note) => (
-          <Card key={note.title}>
-            <CardHeader>
-              <div className="flex h-10 w-10 items-center justify-center bg-[#0614b8] text-white">
-                <note.icon className="h-5 w-5" />
-              </div>
-              <CardTitle>{note.title}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm leading-6 text-gray-600">{note.text}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+          ) : (
+            <EmptyState
+              text="Create your first route brief to compare routes, tradeoffs, partner fit, and preparation steps."
+              action
+            />
+          )}
+        </CardContent>
+      </Card>
     </section>
   );
+}
+
+function ScenarioBucket({
+  title,
+  description,
+  icon: Icon,
+  emptyText,
+  scenarios,
+  tone = 'default',
+  actionLabel = 'View result'
+}: {
+  title: string;
+  description: string;
+  icon: LucideIcon;
+  emptyText: string;
+  scenarios: ScenarioListItem[];
+  tone?: 'default' | 'attention' | 'ready';
+  actionLabel?: string;
+}) {
+  return (
+    <Card>
+      <CardHeader>
+        <div
+          className={`flex h-10 w-10 items-center justify-center text-white ${bucketIconClassName(
+            tone
+          )}`}
+        >
+          <Icon className="h-5 w-5" />
+        </div>
+        <CardTitle>{title}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="mb-5 text-sm leading-6 text-gray-600">{description}</p>
+        {scenarios.length > 0 ? (
+          <div className="space-y-3">
+            {scenarios.slice(0, 3).map((scenario) => (
+              <ScenarioSummaryCard
+                key={scenario.id}
+                scenario={scenario}
+                actionLabel={actionLabel}
+              />
+            ))}
+          </div>
+        ) : (
+          <EmptyState text={emptyText} />
+        )}
+      </CardContent>
+    </Card>
+  );
+}
+
+function ScenarioSummaryCard({
+  scenario,
+  actionLabel
+}: {
+  scenario: ScenarioListItem;
+  actionLabel: string;
+}) {
+  return (
+    <div className="border border-gray-200 p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-semibold text-gray-950">
+            {formatCountry(scenario.originCountry)} to{' '}
+            {formatCountry(scenario.destinationCountry)}
+          </p>
+          <p className="mt-1 text-xs leading-5 text-gray-500">
+            {scenario.currency} {formatAmount(scenario.amount)} ·{' '}
+            {useCaseLabels[scenario.businessUseCase] ??
+              scenario.businessUseCase}
+          </p>
+        </div>
+        <StatusBadge scenario={scenario} />
+      </div>
+      <Button asChild variant="outline" className="mt-4 w-full">
+        <Link href={`/dashboard/scenarios/${scenario.id}`}>
+          {actionLabel}
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
+function ScenarioRow({ scenario }: { scenario: ScenarioListItem }) {
+  return (
+    <div className="flex flex-col gap-4 border border-gray-200 p-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex gap-3">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center bg-gray-950 text-white">
+          <CheckCircle2 className="h-5 w-5" />
+        </div>
+        <div>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium text-gray-950">
+              {formatCountry(scenario.originCountry)} to{' '}
+              {formatCountry(scenario.destinationCountry)}
+            </p>
+            <StatusBadge scenario={scenario} />
+          </div>
+          <p className="mt-1 text-sm leading-6 text-gray-600">
+            {directionLabels[scenario.direction] ?? scenario.direction} ·{' '}
+            {scenario.currency} {formatAmount(scenario.amount)} ·{' '}
+            {priorityLabels[scenario.priority] ?? scenario.priority}
+          </p>
+        </div>
+      </div>
+      <Button asChild variant="outline">
+        <Link href={`/dashboard/scenarios/${scenario.id}`}>
+          View result
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </Button>
+    </div>
+  );
+}
+
+function EmptyState({ text, action = false }: { text: string; action?: boolean }) {
+  return (
+    <div className="border border-dashed border-gray-300 p-4">
+      <p className="text-sm leading-6 text-gray-600">{text}</p>
+      {action ? (
+        <Button
+          asChild
+          className="mt-4 bg-[#0614b8] text-white hover:bg-[#07108f]"
+        >
+          <Link href="/dashboard/scenarios/new">
+            <PlusCircle className="h-4 w-4" />
+            Start a Route Brief
+          </Link>
+        </Button>
+      ) : null}
+    </div>
+  );
+}
+
+function StatusBadge({ scenario }: { scenario: ScenarioListItem }) {
+  if (isReadyForAction(scenario)) {
+    return (
+      <span className="bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
+        Ready for intro
+      </span>
+    );
+  }
+
+  if (isNeedsAttention(scenario)) {
+    return (
+      <span className="bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
+        Needs attention
+      </span>
+    );
+  }
+
+  return (
+    <span className="bg-sky-50 px-2 py-1 text-xs font-medium text-sky-700">
+      Completed
+    </span>
+  );
+}
+
+function isProductRole(value: string): value is (typeof productRoles)[number] {
+  return productRoles.includes(value as (typeof productRoles)[number]);
+}
+
+function isNeedsAttention(scenario: ScenarioListItem) {
+  return scenario.status !== 'evaluated' || scenario.routeCount === 0;
+}
+
+function isReadyForAction(scenario: ScenarioListItem) {
+  return scenario.status === 'evaluated' && scenario.providerMatchCount > 0;
+}
+
+function bucketIconClassName(tone: 'default' | 'attention' | 'ready') {
+  if (tone === 'attention') {
+    return 'bg-amber-600';
+  }
+
+  if (tone === 'ready') {
+    return 'bg-emerald-700';
+  }
+
+  return 'bg-[#0614b8]';
+}
+
+function formatCountry(country: string) {
+  return countryLabels[country] ?? country;
+}
+
+function formatAmount(amount: string) {
+  const numericAmount = Number(amount);
+
+  if (!Number.isFinite(numericAmount)) {
+    return amount;
+  }
+
+  return new Intl.NumberFormat('en-US', {
+    maximumFractionDigits: 2
+  }).format(numericAmount);
 }
