@@ -1,9 +1,7 @@
 # FlowSignal
 
-FlowSignal is a lead-generation website plus gated advisory portal for Indian
-accountants, CFOs, and treasury teams dealing with cross-border payments. The
-app has a public acquisition site and a protected member portal for diagnostics,
-resources, and advisory preparation.
+FlowSignal is an authority surface plus gated advisory portal for financial professionals (accountants, CFOs, and treasury teams) dealing with 
+cross-border payments. The app has a public acquisition site and a protected member portal for diagnostics, resources, and advisory preparation.
 
 ## Public Pages
 
