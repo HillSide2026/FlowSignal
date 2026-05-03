@@ -1,8 +1,11 @@
 import Link from 'next/link';
+import type { ReactNode } from 'react';
 import {
   AlertTriangle,
   ArrowLeft,
+  ArrowRight,
   CheckCircle2,
+  ChevronDown,
   FileText,
   Gift,
   GitCompare,
@@ -33,12 +36,6 @@ const routeTypeLabels: Record<string, string> = {
   local_rails: 'Local rails',
   trade_bank_route: 'Trade bank route'
 };
-
-const recommendationOrder = [
-  { tag: 'best_for_cost', title: 'Best for cost' },
-  { tag: 'best_for_speed', title: 'Best for speed' },
-  { tag: 'best_for_simplicity', title: 'Best for simplicity' }
-] as const;
 
 export function ScenarioResultsView({
   scenario,
@@ -85,12 +82,17 @@ export function ScenarioResultsView({
 
       {isSupported ? (
         <div className="mt-6 space-y-6">
-          <RouteOptions routes={output.routes} />
+          <ExecutiveSummary routes={output.routes} scenarioId={scenario.id} />
           <ComparisonLayer routes={output.routes} />
-          <Recommendations routes={output.routes} />
-          <PartnerMatches routes={output.routes} />
-          <ComplianceSummary routes={output.routes} />
-          <RiskFlags routes={output.routes} />
+          <DecisionRouteCards routes={output.routes} />
+          <PartnerMatches routes={output.routes} scenarioId={scenario.id} />
+          <PrepareForExecution scenario={scenario} routes={output.routes} />
+          <CollapsibleSection title="Compliance details">
+            <ComplianceSummary routes={output.routes} />
+          </CollapsibleSection>
+          <CollapsibleSection title="Risk flags">
+            <RiskFlags routes={output.routes} />
+          </CollapsibleSection>
         </div>
       ) : (
         <UnsupportedScenario output={output} />
@@ -162,13 +164,69 @@ function ScenarioSummary({
   );
 }
 
-function RouteOptions({ routes }: { routes: RouteResult[] }) {
+function ExecutiveSummary({
+  routes,
+  scenarioId
+}: {
+  routes: RouteResult[];
+  scenarioId: number;
+}) {
+  const summaryRows = buildExecutiveSummary(routes);
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex h-10 w-10 items-center justify-center bg-[#0614b8] text-white">
+          <ListChecks className="h-5 w-5" />
+        </div>
+        <CardTitle>Executive summary</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="mb-5 text-sm leading-6 text-gray-600">
+          Best route options for this scenario, based on configured cost,
+          speed, simplicity, and priority fit. These are decision categories,
+          not execution instructions.
+        </p>
+        <div className="grid gap-3">
+          {summaryRows.map((row, index) => (
+            <div
+              key={`${row.route.routeId}-${row.label}`}
+              className="grid gap-3 border border-gray-200 p-4 md:grid-cols-[2rem_1fr_auto]"
+            >
+              <span className="flex h-8 w-8 items-center justify-center bg-gray-950 text-sm font-semibold text-white">
+                {index + 1}
+              </span>
+              <div>
+                <p className="text-sm font-semibold text-gray-950">
+                  {row.route.routeName}
+                </p>
+                <p className="mt-1 text-sm leading-6 text-gray-600">
+                  {row.label} · {row.reason}
+                </p>
+              </div>
+              <Button asChild variant="outline">
+                <Link
+                  href={`/dashboard/scenarios/${scenarioId}/handoff?requestType=review&routeId=${row.route.routeId}`}
+                >
+                  Ask FlowSignal to review
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function DecisionRouteCards({ routes }: { routes: RouteResult[] }) {
   return (
     <div>
       <SectionHeading
         eyebrow="Route options"
-        title="Viable paths from the rule engine"
-        text="Each card shows the configured range, documentation posture, risk flags, and tradeoff notes for this scenario."
+        title="Decision-ready route cards"
+        text="Each card leads with the decision label, tradeoff, and when the route is a poor fit."
       />
       <div className="grid gap-6 xl:grid-cols-2">
         {routes.map((route) => (
@@ -179,7 +237,12 @@ function RouteOptions({ routes }: { routes: RouteResult[] }) {
                   <p className="text-xs font-semibold uppercase text-gray-500">
                     {routeTypeLabels[route.routeType]}
                   </p>
-                  <CardTitle className="mt-2">{route.routeName}</CardTitle>
+                  <CardTitle className="mt-2">
+                    {getDecisionLabel(route)}
+                  </CardTitle>
+                  <p className="mt-2 text-sm font-medium text-gray-950">
+                    {route.routeName}
+                  </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {route.recommendationTags.map((tag) => (
@@ -216,6 +279,15 @@ function RouteOptions({ routes }: { routes: RouteResult[] }) {
                 </p>
                 <p className="mt-2 text-sm leading-6 text-gray-600">
                   {route.tradeoffSummary}
+                </p>
+              </div>
+
+              <div className="mt-5 border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm font-semibold text-gray-950">
+                  When NOT to use this
+                </p>
+                <p className="mt-2 text-sm leading-6 text-gray-700">
+                  {getWhenNotToUse(route)}
                 </p>
               </div>
 
@@ -292,62 +364,13 @@ function ComparisonLayer({ routes }: { routes: RouteResult[] }) {
   );
 }
 
-function Recommendations({ routes }: { routes: RouteResult[] }) {
-  const recommendations = recommendationOrder
-    .map((item) => ({
-      ...item,
-      matches: routes.flatMap((route) =>
-        route.recommendationTags
-          .filter((tag) => tag.tag === item.tag)
-          .map((tag) => ({ route, tag }))
-      )
-    }))
-    .filter((item) => item.matches.length > 0);
-
-  if (recommendations.length === 0) {
-    return null;
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <div className="flex h-10 w-10 items-center justify-center bg-[#0584c7] text-white">
-          <ListChecks className="h-5 w-5" />
-        </div>
-        <CardTitle>Contextual recommendations</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 lg:grid-cols-3">
-          {recommendations.map((recommendation) => (
-            <div
-              key={recommendation.tag}
-              className="border border-gray-200 p-4"
-            >
-              <p className="text-sm font-semibold text-gray-950">
-                {recommendation.title}
-              </p>
-              <div className="mt-3 space-y-4">
-                {recommendation.matches.map(({ route, tag }) => (
-                  <RecommendationNote
-                    key={`${route.routeId}-${tag.tag}`}
-                    route={route}
-                    tag={tag}
-                  />
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <p className="mt-5 text-xs leading-5 text-gray-500">
-          These are fit categories, not a universal winner or payment execution
-          instruction.
-        </p>
-      </CardContent>
-    </Card>
-  );
-}
-
-function PartnerMatches({ routes }: { routes: RouteResult[] }) {
+function PartnerMatches({
+  routes,
+  scenarioId
+}: {
+  routes: RouteResult[];
+  scenarioId: number;
+}) {
   const providerRows = routes.flatMap((route) =>
     (route.providerMatches ?? []).map((match) => ({ route, match }))
   );
@@ -432,6 +455,27 @@ function PartnerMatches({ routes }: { routes: RouteResult[] }) {
               {match.flowPoints ? (
                 <FlowPointsDisclosure flowPoints={match.flowPoints} />
               ) : null}
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <Button
+                  asChild
+                  className="bg-[#0614b8] text-white hover:bg-[#07108f]"
+                >
+                  <Link
+                    href={`/dashboard/scenarios/${scenarioId}/handoff?requestType=intro&routeId=${route.routeId}&partnerId=${match.providerId}`}
+                  >
+                    Request Introduction
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline">
+                  <Link
+                    href={`/dashboard/scenarios/${scenarioId}/handoff?requestType=review&routeId=${route.routeId}&partnerId=${match.providerId}`}
+                  >
+                    Ask FlowSignal to Review This
+                  </Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
         ))}
@@ -441,6 +485,113 @@ function PartnerMatches({ routes }: { routes: RouteResult[] }) {
         recommendations.
       </p>
     </div>
+  );
+}
+
+function PrepareForExecution({
+  scenario,
+  routes
+}: {
+  scenario: PaymentScenario;
+  routes: RouteResult[];
+}) {
+  const requirements = Array.from(
+    new Set(routes.flatMap((route) => route.documentation.requirements))
+  ).slice(0, 7);
+  const primaryRoute = buildExecutiveSummary(routes)[0]?.route ?? routes[0];
+
+  return (
+    <Card>
+      <CardHeader>
+        <div className="flex h-10 w-10 items-center justify-center bg-gray-950 text-white">
+          <FileText className="h-5 w-5" />
+        </div>
+        <CardTitle>Prepare for execution</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-5 lg:grid-cols-2">
+          <div>
+            <p className="text-sm font-semibold text-gray-950">
+              Documents needed
+            </p>
+            <ul className="mt-3 grid gap-2 text-sm text-gray-600">
+              {requirements.map((requirement) => (
+                <li key={requirement} className="flex gap-2">
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-[#0584c7]" />
+                  <span>{requirement}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="border border-gray-200 p-4">
+            <p className="text-sm font-semibold text-gray-950">
+              Partner intro brief
+            </p>
+            <dl className="mt-3 grid gap-2 text-sm text-gray-600">
+              <IntroBriefRow label="Use case" value={formatUseCase(scenario)} />
+              <IntroBriefRow
+                label="Amount"
+                value={`${scenario.currency} ${formatAmount(scenario.amount)}`}
+              />
+              <IntroBriefRow
+                label="Corridor"
+                value={`${formatCountry(scenario.originCountry)} to ${formatCountry(
+                  scenario.destinationCountry
+                )}`}
+              />
+              <IntroBriefRow
+                label="Preferred route"
+                value={primaryRoute?.routeName ?? 'To be confirmed'}
+              />
+              <IntroBriefRow
+                label="Constraints"
+                value={priorityLabels[scenario.priority] ?? scenario.priority}
+              />
+            </dl>
+            {primaryRoute ? (
+              <Button
+                asChild
+                className="mt-5 bg-[#0614b8] text-white hover:bg-[#07108f]"
+              >
+                <Link
+                  href={`/dashboard/scenarios/${scenario.id}/handoff?requestType=review&routeId=${primaryRoute.routeId}`}
+                >
+                  Use this brief for review
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+            ) : null}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function IntroBriefRow({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="grid gap-1 sm:grid-cols-[8rem_1fr]">
+      <dt className="font-medium text-gray-500">{label}</dt>
+      <dd className="text-gray-800">{value}</dd>
+    </div>
+  );
+}
+
+function CollapsibleSection({
+  title,
+  children
+}: {
+  title: string;
+  children: ReactNode;
+}) {
+  return (
+    <details className="group border border-gray-200 bg-white">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-4 text-sm font-semibold text-gray-950">
+        {title}
+        <ChevronDown className="h-4 w-4 transition group-open:rotate-180" />
+      </summary>
+      <div className="border-t border-gray-200 p-4">{children}</div>
+    </details>
   );
 }
 
@@ -628,22 +779,95 @@ function FlowPointsDisclosure({
   );
 }
 
-function RecommendationNote({
-  route,
-  tag
-}: {
-  route: RouteResult;
-  tag: RecommendationTag;
-}) {
-  return (
-    <div>
-      <p className="text-sm font-medium text-[#0614b8]">{route.routeName}</p>
-      <p className="mt-2 text-sm leading-6 text-gray-600">{tag.reason}</p>
-      <p className="mt-2 text-xs leading-5 text-gray-500">
-        Tradeoff: {route.tradeoffSummary}
-      </p>
-    </div>
-  );
+function buildExecutiveSummary(routes: RouteResult[]) {
+  const rows: { label: string; reason: string; route: RouteResult }[] = [];
+  const usedRouteIds = new Set<string>();
+  const tagPriority: RecommendationTag['tag'][] = [
+    'best_for_cost',
+    'best_for_speed',
+    'best_for_simplicity',
+    'priority_fit'
+  ];
+
+  for (const tag of tagPriority) {
+    const match = routes
+      .flatMap((route) =>
+        route.recommendationTags
+          .filter((recommendation) => recommendation.tag === tag)
+          .map((recommendation) => ({ route, recommendation }))
+      )
+      .find(({ route }) => !usedRouteIds.has(route.routeId));
+
+    if (!match) {
+      continue;
+    }
+
+    usedRouteIds.add(match.route.routeId);
+    rows.push({
+      label: getDecisionLabel(match.route),
+      reason: match.recommendation.reason,
+      route: match.route
+    });
+  }
+
+  for (const route of routes) {
+    if (rows.length >= 3) {
+      break;
+    }
+
+    if (!usedRouteIds.has(route.routeId)) {
+      rows.push({
+        label: getDecisionLabel(route),
+        reason: route.tradeoffSummary,
+        route
+      });
+    }
+  }
+
+  return rows.slice(0, 3);
+}
+
+function getDecisionLabel(route: RouteResult) {
+  if (route.recommendationTags.some((tag) => tag.tag === 'best_for_cost')) {
+    return 'Lower Cost';
+  }
+
+  if (route.recommendationTags.some((tag) => tag.tag === 'best_for_speed')) {
+    return 'Faster';
+  }
+
+  if (
+    route.recommendationTags.some((tag) => tag.tag === 'best_for_simplicity') ||
+    route.complexityLevel === 'low'
+  ) {
+    return 'Operationally Simpler';
+  }
+
+  if (route.routeType === 'bank_swift' || route.routeType === 'trade_bank_route') {
+    return 'Bank-Reviewed';
+  }
+
+  return 'Balanced Option';
+}
+
+function getWhenNotToUse(route: RouteResult) {
+  if (route.routeType === 'bank_swift' || route.routeType === 'trade_bank_route') {
+    return 'Avoid this when speed, low operational effort, or predictable deductions matter more than bank-reviewed documentation and a conservative audit trail.';
+  }
+
+  if (route.routeType === 'local_rails') {
+    return 'Avoid this when payer, beneficiary, invoice, or settlement records cannot be reconciled cleanly across systems.';
+  }
+
+  if (route.routeType === 'fintech_assisted') {
+    return 'Avoid this when the transaction requires a bank-led documentary review, unusual counterparty handling, or a provider limit review would create timing risk.';
+  }
+
+  if (route.complianceLevel === 'high') {
+    return 'Avoid this when the finance team cannot prepare supporting documents early enough for a manual review cycle.';
+  }
+
+  return 'Avoid this when its tradeoffs do not match the scenario priority or when required documentation is incomplete.';
 }
 
 function LevelBadge({ value }: { value: string }) {
@@ -684,6 +908,10 @@ function formatAmount(amount: string) {
   return new Intl.NumberFormat('en-US', {
     maximumFractionDigits: 2
   }).format(numericAmount);
+}
+
+function formatUseCase(scenario: PaymentScenario) {
+  return useCaseLabels[scenario.businessUseCase] ?? scenario.businessUseCase;
 }
 
 function formatLevel(value: string) {

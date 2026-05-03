@@ -98,6 +98,25 @@ export const scenarioResults = pgTable('scenario_results', {
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
 
+export const handoffRequests = pgTable('handoff_requests', {
+  id: serial('id').primaryKey(),
+  userId: integer('user_id')
+    .notNull()
+    .references(() => users.id),
+  scenarioId: integer('scenario_id')
+    .notNull()
+    .references(() => paymentScenarios.id),
+  preferredRoute: varchar('preferred_route', { length: 160 }).notNull(),
+  partnerId: varchar('partner_id', { length: 160 }),
+  requestType: varchar('request_type', { length: 20 }).notNull(),
+  status: varchar('status', { length: 20 }).notNull().default('submitted'),
+  urgency: varchar('urgency', { length: 20 }).notNull(),
+  notes: text('notes'),
+  missingInfoJson: jsonb('missing_info_json').$type<JsonObject>(),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
+});
+
 export const partners = pgTable('partners', {
   id: serial('id').primaryKey(),
   slug: varchar('slug', { length: 100 }).notNull().unique(),
@@ -142,6 +161,7 @@ export const usersRelations = relations(users, ({ many }) => ({
   teamMembers: many(teamMembers),
   invitationsSent: many(invitations),
   paymentScenarios: many(paymentScenarios),
+  handoffRequests: many(handoffRequests),
 }));
 
 export const invitationsRelations = relations(invitations, ({ one }) => ({
@@ -189,12 +209,24 @@ export const paymentScenariosRelations = relations(
       references: [teams.id],
     }),
     results: many(scenarioResults),
+    handoffRequests: many(handoffRequests),
   })
 );
 
 export const scenarioResultsRelations = relations(scenarioResults, ({ one }) => ({
   scenario: one(paymentScenarios, {
     fields: [scenarioResults.scenarioId],
+    references: [paymentScenarios.id],
+  }),
+}));
+
+export const handoffRequestsRelations = relations(handoffRequests, ({ one }) => ({
+  user: one(users, {
+    fields: [handoffRequests.userId],
+    references: [users.id],
+  }),
+  scenario: one(paymentScenarios, {
+    fields: [handoffRequests.scenarioId],
     references: [paymentScenarios.id],
   }),
 }));
@@ -227,6 +259,8 @@ export type PaymentScenario = typeof paymentScenarios.$inferSelect;
 export type NewPaymentScenario = typeof paymentScenarios.$inferInsert;
 export type ScenarioResult = typeof scenarioResults.$inferSelect;
 export type NewScenarioResult = typeof scenarioResults.$inferInsert;
+export type HandoffRequest = typeof handoffRequests.$inferSelect;
+export type NewHandoffRequest = typeof handoffRequests.$inferInsert;
 export type Partner = typeof partners.$inferSelect;
 export type NewPartner = typeof partners.$inferInsert;
 export type PartnerRouteMapping = typeof partnerRouteMappings.$inferSelect;
